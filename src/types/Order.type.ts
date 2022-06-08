@@ -44,10 +44,10 @@ export type Extra = {
   filterRate?: string;
   channel?: string;
   generateEpid?: string;
-  valability?: string;
+  valability?: Date;
   c2pId?: string;
   c2pCid?: string;
-  lang?: string;
+  lang?: 'ro' | 'en' | 'fr' | 'de' | 'it' | 'es' | 'hu';
 };
 
 export type BaseOrder = {
@@ -100,5 +100,5 @@ export type BaseExtra = {
   valability?: string;
   c2p_id?: string;
   c2p_cid?: string;
-  lang?: string;
+  lang?: 'ro' | 'en' | 'fr' | 'de' | 'it' | 'es' | 'hu';
 };
