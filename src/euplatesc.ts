@@ -83,6 +83,21 @@ export class EuPlatesc {
         hmacData.recurent_exp = [dt.getUTCFullYear() + 1, date.mo, date.d].join('');
       }
     }
+    if (data.valability) {
+      const valability = new Date(data.valability);
+      hmacData.valability = [
+        valability.getFullYear(),
+        (valability.getUTCMonth() + 1).toString().padStart(2, '0'),
+        valability.getUTCDate().toString().padStart(2, '0'),
+        valability.getUTCHours().toString().padStart(2, '0'),
+        valability.getUTCMinutes().toString().padStart(2, '0'),
+        valability.getUTCSeconds().toString().padStart(2, '0')
+      ].join('');
+    }
+
+    data.c2pId && (hmacData.c2p_id = data.c2pId);
+    data.c2pCid && (hmacData.c2p_cid = data.c2pCid);
+
     hmacData.fp_hash = this.computeHmac(hmacData);
     if (data.frequency) {
       hmacData.recurent = 'Base';
@@ -123,9 +138,6 @@ export class EuPlatesc {
     data.filterRate && (hmacData['ExtraData[filtru_rate]'] = data.filterRate);
     data.channel && (hmacData['ExtraData[ep_channel]'] = data.channel);
     data.generateEpid && (hmacData.generate_epid = data.generateEpid);
-    data.valability && (hmacData.valability = data.valability);
-    data.c2pId && (hmacData.c2p_id = data.c2pId);
-    data.c2pCid && (hmacData.c2p_cid = data.c2pCid);
     data.lang && (hmacData.lang = data.lang);
 
     const params = new URLSearchParams(hmacData);
