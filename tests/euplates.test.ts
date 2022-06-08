@@ -50,7 +50,7 @@ describe('euplatesc unit tests', (): void => {
     });
 
     it('Check base params in the final URL', (): void => {
-      const paymentUrl = euplatescClient.paymentUrl(data);
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
@@ -66,7 +66,7 @@ describe('euplatesc unit tests', (): void => {
         days: 7,
         expiresAt
       };
-      const paymentUrl = euplatescClient.paymentUrl(data);
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
@@ -82,7 +82,7 @@ describe('euplatesc unit tests', (): void => {
     });
 
     it('Check billing data is missing', (): void => {
-      const paymentUrl = euplatescClient.paymentUrl(data);
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
@@ -112,7 +112,7 @@ describe('euplatesc unit tests', (): void => {
         billingPhone: '+40712345678',
         billingEmail: 'some_email@domain.ro'
       };
-      const paymentUrl = euplatescClient.paymentUrl(data);
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
@@ -129,7 +129,7 @@ describe('euplatesc unit tests', (): void => {
     });
 
     it('Check shipping data is missing', (): void => {
-      const paymentUrl = euplatescClient.paymentUrl(data);
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
@@ -159,7 +159,7 @@ describe('euplatesc unit tests', (): void => {
         shippingPhone: '+40712345679',
         shippingEmail: 'banat@domain.ro'
       };
-      const paymentUrl = euplatescClient.paymentUrl(data);
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
@@ -176,7 +176,7 @@ describe('euplatesc unit tests', (): void => {
     });
 
     it('Check extra data is missing', (): void => {
-      const paymentUrl = euplatescClient.paymentUrl(data);
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
@@ -221,7 +221,7 @@ describe('euplatesc unit tests', (): void => {
         c2pCid: 'another-unique-id',
         lang: 'fr'
       };
-      const paymentUrl = euplatescClient.paymentUrl(data);
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
