@@ -26,7 +26,7 @@ export class EuPlatesc {
     return this._testMode;
   }
 
-  public paymentUrl = (data: Hmac & Order) => {
+  public paymentUrl = (data: Hmac & Order): { paymentUrl: string } => {
     if (!data.amount) {
       throw new Error('The field amount is missing.');
     }
@@ -142,7 +142,7 @@ export class EuPlatesc {
 
     const params = new URLSearchParams(hmacData);
 
-    return `${EUPLATESC_GATEWAY_URL}?${params}`;
+    return { paymentUrl: `${EUPLATESC_GATEWAY_URL}?${params}` };
   };
 
   public getStatus = () => {};
