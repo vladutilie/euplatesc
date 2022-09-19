@@ -1,8 +1,9 @@
 import * as crypto from 'crypto';
 
-import { EUPLATESC_GATEWAY_URL, EUPLATESC_TEST_MERCHANT_ID, EUPLATESC_TEST_SECRET_KEY } from './constants';
+import { EUPLATESC_GATEWAY_URL, EUPLATESC_TEST_MERCHANT_ID, EUPLATESC_TEST_SECRET_KEY } from './utils/constants';
 import { BaseOrder, Config, Hmac, Order } from './types';
-import { BaseHmac } from './types/Hmac.type';
+import { BaseHmac, BaseTransactionHmac } from './types/Hmac.type';
+import { prepareTS } from './utils/helpers';
 export class EuPlatesc {
   _merchantId: string;
   _secretKey: string;
@@ -46,17 +47,9 @@ export class EuPlatesc {
     const dt = new Date();
     const date: { [k: string]: string } = {
       y: dt.getUTCFullYear().toString(),
-      mo: (dt.getUTCMonth() + 1).toString().padStart(2, '0'),
-      d: dt.getUTCDate().toString().padStart(2, '0'),
-      h: dt.getUTCHours().toString().padStart(2, '0'),
-      mi: dt.getUTCMinutes().toString().padStart(2, '0'),
-      s: dt.getUTCSeconds().toString().padStart(2, '0')
+      m: (dt.getUTCMonth() + 1).toString().padStart(2, '0'),
+      d: dt.getUTCDate().toString().padStart(2, '0')
     };
-
-    let timestamp = '';
-    for (const t in date) {
-      timestamp += date[t as string];
-    }
 
     let hmacData: BaseHmac & BaseOrder = {
       amount: this._testMode ? '1.00' : data.amount.toString(),
@@ -64,7 +57,7 @@ export class EuPlatesc {
       invoice_id: data.invoiceId,
       order_desc: data.orderDescription,
       merch_id: this._testMode ? EUPLATESC_TEST_MERCHANT_ID : this.merchantId,
-      timestamp,
+      timestamp: prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex') // 32 bytes for 64 chars
     };
     if (data.frequency) {
@@ -80,7 +73,7 @@ export class EuPlatesc {
           expiresAt.getUTCDate().toString().padStart(2, '0')
         ].join('');
       } else {
-        hmacData.recurent_exp = [dt.getUTCFullYear() + 1, date.mo, date.d].join('');
+        hmacData.recurent_exp = [date.y + 1, date.m, date.d].join('');
       }
     }
     if (data.valability) {
@@ -145,7 +138,36 @@ export class EuPlatesc {
     return { paymentUrl: `${EUPLATESC_GATEWAY_URL}?${params}` };
   };
 
-  public getStatus = () => {};
+  public getTransaction = async ({ epid, invoiceId }: { epid?: string; invoiceId?: string }) => {
+    if (!epid && !invoiceId) {
+      throw new Error('Please pass either epid or invoiceId field.');
+    }
+
+    const data: BaseTransactionHmac = {
+      method: 'check_status',
+      mid: this._merchantId,
+      ...(epid ? { epid } : { invoice_id: invoiceId }),
+      timestamp: prepareTS(),
+      nonce: crypto.randomBytes(16).toString('hex')
+    };
+    data.fp_hash = this.computeHmac(data);
+
+    const formBody = [];
+    for (const key in data) {
+      const encodedKey = encodeURIComponent(key);
+      const encodedValue = encodeURIComponent(data[key as keyof BaseTransactionHmac] as string);
+
+      formBody.push(`${encodedKey}=${encodedValue}`);
+    }
+
+    const response = await fetch('https://manager.euplatesc.ro/v3/?action=ws', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formBody.join('&')
+    }).then((response) => response.json());
+
+    return JSON.parse(response as string);
+  };
 
   public refund = () => {};
 
@@ -167,13 +189,15 @@ export class EuPlatesc {
 
   public checkMid = () => {};
 
-  public computeHmac = (data: BaseHmac): string => {
+  public computeHmac = (data: BaseHmac | BaseTransactionHmac): string => {
     let hmac: string = '';
     for (const key in data) {
-      if (data[key as keyof BaseHmac]?.toString()?.length == 0) {
+      if (data[key as keyof (BaseHmac | BaseTransactionHmac)]?.toString()?.length == 0) {
         hmac += '-';
       } else {
-        hmac += `${data[key as keyof BaseHmac]?.toString()?.length}${data[key as keyof BaseHmac]}`;
+        hmac += `${data[key as keyof (BaseHmac | BaseTransactionHmac)]?.toString()?.length}${
+          data[key as keyof (BaseHmac | BaseTransactionHmac)]
+        }`;
       }
     }
     const secretKey = this._testMode ? EUPLATESC_TEST_SECRET_KEY : this._secretKey;
