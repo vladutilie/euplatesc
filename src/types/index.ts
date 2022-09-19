@@ -1,5 +1,5 @@
 export { Config } from './Config.type';
-export { Hmac, BaseHmac, Currency } from './Hmac.type';
+export { Hmac, BaseHmac, BaseTransactionHmac, Currency } from './Hmac.type';
 export {
   Order,
   BillingDetails,
