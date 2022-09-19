@@ -22,3 +22,13 @@ export type BaseHmac = {
   recurent_freq?: string;
   recurent_exp?: string;
 };
+
+export type BaseTransactionHmac = {
+  method: string;
+  mid: string;
+  epid?: string;
+  invoice_id?: string;
+  timestamp: string;
+  nonce: string;
+  fp_hash?: string;
+};
