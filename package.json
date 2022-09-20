@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "The payment gateway for EuPlatesc.ro",
   "main": "./dist/index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "lint": "eslint \"**\\*.ts\"",
-    "test": "jest --config jestconfig.json"
+    "test": "jest --config jest.config.json"
   },
   "files": [
     "dist",
@@ -32,10 +33,11 @@
   "devDependencies": {
     "@types/jest": "^29.0.3",
     "@types/node": "^18.7.18",
+    "axios": "^0.27.2",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "jest": "^29.0.3",
-    "node-fetch": "^3.2.10",
+    "jest-mock-axios": "^4.7.0-beta",
     "prettier": "^2.7.1",
     "ts-jest": "^29.0.1",
     "ts-node": "^10.9.1",
