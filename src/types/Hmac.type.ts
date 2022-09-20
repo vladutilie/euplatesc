@@ -1,3 +1,5 @@
+import { Methods } from './Methods.enum';
+
 export type Currency = 'RON' | 'USD' | 'EUR';
 
 export type Hmac = {
@@ -24,7 +26,7 @@ export type BaseHmac = {
 };
 
 export type BaseTransactionHmac = {
-  method: string;
+  method: Methods;
   mid: string;
   epid?: string;
   invoice_id?: string;

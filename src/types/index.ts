@@ -1,12 +1,13 @@
-export { Config } from './Config.type';
-export { Hmac, BaseHmac, BaseTransactionHmac, Currency } from './Hmac.type';
 export {
-  Order,
-  BillingDetails,
-  ShippingDetails,
-  Extra,
-  BaseOrder,
   BaseBillingDetails,
+  BaseExtra,
+  BaseOrder,
   BaseShippingDetails,
-  BaseExtra
+  BillingDetails,
+  Extra,
+  Order,
+  ShippingDetails
 } from './Order.type';
+export { BaseHmac, BaseTransactionHmac, Currency, Hmac } from './Hmac.type';
+export { Config } from './Config.type';
+export { Methods } from './Methods.enum';
