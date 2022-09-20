@@ -1,4 +1,7 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect } from '@jest/globals';
+import axios from 'axios';
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 import { EUPLATESC_TEST_MERCHANT_ID, EUPLATESC_TEST_SECRET_KEY } from '../utils/constants';
 import { EuPlatesc } from '../euplatesc';
@@ -17,17 +20,17 @@ describe('euplatesc unit tests', (): void => {
       euplatescClient = new EuPlatesc(euplatescConfig);
     });
 
-    it('check the merchant id', (): void => {
+    test('check the merchant id', (): void => {
       expect(typeof euplatescClient.merchantId).toBe('string');
       expect(euplatescClient.merchantId).toBe(euplatescConfig.merchantId);
     });
 
-    it('check the private key', (): void => {
+    test('check the private key', (): void => {
       expect(typeof euplatescClient.privateKey).toBe('string');
       expect(euplatescClient.privateKey).toBe(euplatescConfig.secretKey);
     });
 
-    it('check the test mode', (): void => {
+    test('check the test mode', (): void => {
       expect(typeof euplatescClient.testMode).toBe('boolean');
       expect(euplatescClient.testMode).toBe(euplatescConfig.testMode);
     });
@@ -47,7 +50,7 @@ describe('euplatesc unit tests', (): void => {
       };
     });
 
-    it('Check base params in the final URL', (): void => {
+    test('Check base params in the final URL', (): void => {
       const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
@@ -58,7 +61,7 @@ describe('euplatesc unit tests', (): void => {
       expect(params.get('order_desc')).toBe(data.orderDescription);
     });
 
-    it('Check frequency params in the final URL', (): void => {
+    test('Check frequency params in the final URL', (): void => {
       const expiresAt = new Date(2022, 5 + 1, 4);
       data.frequency = {
         days: 7,
@@ -79,7 +82,7 @@ describe('euplatesc unit tests', (): void => {
       expect(params.get('recurent')).toBe('Base');
     });
 
-    it('Check billing data is missing', (): void => {
+    test('Check billing data is missing', (): void => {
       const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
@@ -96,7 +99,7 @@ describe('euplatesc unit tests', (): void => {
       expect(null === params.get('email')).toBe(true);
     });
 
-    it('Check billing data is present', (): void => {
+    test('Check billing data is present', (): void => {
       data = {
         ...data,
         billingFirstName: 'First name',
@@ -126,7 +129,7 @@ describe('euplatesc unit tests', (): void => {
       expect(params.get('email')).toBe(data.billingEmail);
     });
 
-    it('Check shipping data is missing', (): void => {
+    test('Check shipping data is missing', (): void => {
       const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
@@ -143,7 +146,7 @@ describe('euplatesc unit tests', (): void => {
       expect(null === params.get('email')).toBe(true);
     });
 
-    it('Check shipping data is present', (): void => {
+    test('Check shipping data is present', (): void => {
       data = {
         ...data,
         shippingFirstName: 'First another name',
@@ -173,7 +176,7 @@ describe('euplatesc unit tests', (): void => {
       expect(params.get('semail')).toBe(data.shippingEmail);
     });
 
-    it('Check extra data is missing', (): void => {
+    test('Check extra data is missing', (): void => {
       const { paymentUrl } = euplatescClient.paymentUrl(data);
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
@@ -197,7 +200,7 @@ describe('euplatesc unit tests', (): void => {
       expect(null === params.get('lang')).toBe(true);
     });
 
-    it('Check extra data is present', (): void => {
+    test('Check extra data is present', (): void => {
       const valability = new Date(2022, 5, 8, 11, 26, 47);
       data = {
         ...data,
@@ -253,7 +256,7 @@ describe('euplatesc unit tests', (): void => {
   });
 
   describe('computeHmac()', (): void => {
-    it('check computation', (): void => {
+    test('check computation', (): void => {
       let euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
@@ -276,7 +279,7 @@ describe('euplatesc unit tests', (): void => {
   });
 
   describe('getStatus()', (): void => {
-    it('check...', async (): Promise<void> => {
+    test('check exception for no passed params', (): void => {
       let euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
@@ -284,9 +287,47 @@ describe('euplatesc unit tests', (): void => {
       };
       euplatescClient = new EuPlatesc(euplatescConfig);
 
-      // console.log(euplatescClient.getTransaction({ invoiceId: '123' }));
+      expect(async () => {
+        await euplatescClient.getTransaction({});
+      }).rejects.toThrow(Error);
+    });
 
-      // await euplatescClient.getStatus();
+    test('check request data', async (): Promise<void> => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      mockedAxios.post.mockResolvedValue({
+        success: `[
+          {
+            merch_id: ${euplatescConfig.merchantId},
+            invoice_id: '00000',
+            amount: "49.44"
+            ep_id: '123',
+            rrn: '225884056595',
+            action: '0',
+            sec_status: '9',
+            message: 'Approved',
+            captured: '0',
+            refunded: '0',
+            pending_status: '0',
+            masked_card: '444444xxxxxx4444',
+            card_expire: 'mm-yy',
+            name_on_card: 'Test',
+            email: 'test@test.com',
+            timestamp: '2014-11-26 10:11:48',
+            tran_type: 'Normal',
+            recurent_exp: '',
+            recurent_cancel_date: ''
+          }
+        ]`
+      });
+
+      await euplatescClient.getTransaction({ epid: '123' });
+      expect(mockedAxios.post).toHaveBeenCalledTimes(1);
     });
   });
 });
