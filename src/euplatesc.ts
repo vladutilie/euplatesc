@@ -1,7 +1,8 @@
 import * as crypto from 'crypto';
+import axios from 'axios';
 
 import { EUPLATESC_GATEWAY_URL, EUPLATESC_TEST_MERCHANT_ID, EUPLATESC_TEST_SECRET_KEY } from './utils/constants';
-import { BaseOrder, Config, Hmac, Order } from './types';
+import { BaseOrder, Config, Hmac, Methods, Order } from './types';
 import { BaseHmac, BaseTransactionHmac } from './types/Hmac.type';
 import { prepareTS } from './utils/helpers';
 export class EuPlatesc {
@@ -140,11 +141,18 @@ export class EuPlatesc {
 
   public getTransaction = async ({ epid, invoiceId }: { epid?: string; invoiceId?: string }) => {
     if (!epid && !invoiceId) {
-      throw new Error('Please pass either epid or invoiceId field.');
+      throw new Error('Please pass either epid or invoiceId parameter.');
     }
 
+    const data = this.getTransactionPayload({ epid, invoiceId });
+    const response = await axios.post('https://manager.euplatesc.ro/v3/?action=ws', data);
+
+    return response.data;
+  };
+
+  public getTransactionPayload = ({ epid, invoiceId }: { epid?: string; invoiceId?: string }): string => {
     const data: BaseTransactionHmac = {
-      method: 'check_status',
+      method: Methods.CHECK_STATUS,
       mid: this._merchantId,
       ...(epid ? { epid } : { invoice_id: invoiceId }),
       timestamp: prepareTS(),
@@ -160,13 +168,7 @@ export class EuPlatesc {
       formBody.push(`${encodedKey}=${encodedValue}`);
     }
 
-    const response = await fetch('https://manager.euplatesc.ro/v3/?action=ws', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formBody.join('&')
-    }).then((response) => response.json());
-
-    return JSON.parse(response as string);
+    return formBody.join('&');
   };
 
   public refund = () => {};
