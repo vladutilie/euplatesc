@@ -300,7 +300,7 @@ describe('euplatesc unit tests', (): void => {
       };
       euplatescClient = new EuPlatesc(euplatescConfig);
 
-      mockedAxios.post.mockResolvedValue({
+      mockedAxios.post.mockResolvedValueOnce({
         success: `[
           {
             merch_id: ${euplatescConfig.merchantId},
@@ -328,6 +328,21 @@ describe('euplatesc unit tests', (): void => {
 
       await euplatescClient.getTransaction({ epid: '123' });
       expect(mockedAxios.post).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('captureReversalTransaction()', (): void => {
+    test('check exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.captureReversalTransaction('1');
+      }).rejects.toThrow(Error);
     });
   });
 });
