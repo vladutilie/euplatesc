@@ -15,20 +15,7 @@ import {
   Order,
   SavedCard
 } from './types';
-import {
-  BaseHmac,
-  BaseTransactionHmac,
-  CancelHmac,
-  CaptureHmac,
-  ComputeHmacData,
-  InvoiceListHmac,
-  InvoiceTransactionHmac,
-  PartialCaptureHmac,
-  RefundHmac,
-  RemoveCardHmac,
-  SavedCardsHmac,
-  UpdateInvoiceIdHmac
-} from './types/Hmac.type';
+import { Base, BaseHmac, Payload } from './types/Hmac.type';
 
 export class EuPlatesc {
   protected baseUrl = 'https://manager.euplatesc.ro/v3/index.php?action=ws';
@@ -83,6 +70,7 @@ export class EuPlatesc {
   /**
    * Generate EuPlatesc payment URL
    *
+   * @since 1.0.0
    * @param   {Object} data         Data to generate the payment URL.
    * @returns {paymentUrl: string}  The URL where a payment can be made on euplatesc.ro website.
    */
@@ -203,7 +191,7 @@ export class EuPlatesc {
    * @since 1.0.0
    * @param   {string}  params.epid      The EPID of the transaction.
    * @param   {string}  params.invoiceId The EPID of the transaction.
-   * @returns {Promise}                  Either
+   * @returns {Promise}                  Either {success: string} for success or { error, ecode } for error.
    */
   public getStatus = async (params: {
     epid?: string;
@@ -213,26 +201,13 @@ export class EuPlatesc {
       throw new Error('Please pass either "epid" or "invoiceId" param to "getTransactionPayload" method.');
     }
 
-    const data: BaseTransactionHmac = {
+    const payload: Payload = {
       method: Methods.CHECK_STATUS,
       mid: this.merchantId,
-      ...(params.epid ? { epid: params.epid } : { invoice_id: params.invoiceId }),
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      ...(params.epid ? { epid: params.epid } : { invoice_id: params.invoiceId })
     };
-    data.fp_hash = this.computeHmac(data);
 
-    const formBody = [];
-    for (const key in data) {
-      const encodedKey = encodeURIComponent(key);
-      const encodedValue = encodeURIComponent(data[key as keyof BaseTransactionHmac] as string);
-
-      formBody.push(`${encodedKey}=${encodedValue}`);
-    }
-
-    const response = await axios.post(this.baseUrl, formBody.join('&'));
-
-    return response.data;
+    return await this.genericRequest<Payload, { success: string } | { error: string; ecode: string }>(payload);
   };
 
   /**
@@ -253,26 +228,15 @@ export class EuPlatesc {
       );
     }
 
-    const data: CaptureHmac = {
+    const payload: Payload = {
       method: isReversal ? Methods.REVERSAL : Methods.CAPTURE,
       ukey: this.userKey,
-      epid,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      epid
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof CaptureHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, { success: string } | { error: string }>(payload, useSecretKey);
   };
 
   /**
@@ -293,32 +257,25 @@ export class EuPlatesc {
       );
     }
 
-    const data: PartialCaptureHmac = {
+    const payload: Payload = {
       method: Methods.PARTIAL_CAPTURE,
       ukey: this.userKey,
       amount: amount.toFixed(2).toString(),
-      epid,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      epid
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof PartialCaptureHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<
+      Payload,
+      { success: string } | { error?: string; message?: string; ecode: string }
+    >(payload, useSecretKey);
   };
 
   /**
    * (Partial) Refund of a transaction
    *
+   * @since 1.0.0
    * @param   {string}  epid    The EPID of the transaction.
    * @param   {string}  amount  Amount to be captured.
    * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
@@ -335,33 +292,29 @@ export class EuPlatesc {
       );
     }
 
-    const data: RefundHmac = {
+    const payload: Payload = {
       method: Methods.REFUND,
       ukey: this.userKey,
       amount: amount.toFixed(2).toString(),
       reason,
-      epid,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      epid
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof RefundHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<
+      Payload,
+      { success: string } | { error?: string; message?: string; ecode: string }
+    >(payload, useSecretKey);
   };
 
   /**
    * Cancel recurring transaction
    *
+   * Watch out: if you just test this method with a failed EPID, a valid recurring payment will be canceled :(
+   * It might be an EuPlatesc bug.
+   *
+   * @since 1.0.0
    * @param   {string}  epid    The EPID of the transaction.
    * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
    * @returns {Promise}         Either { success } for success or { error?: string; message?: string; ecode: string } for error.
@@ -376,32 +329,25 @@ export class EuPlatesc {
       );
     }
 
-    const data: CancelHmac = {
+    const payload: Payload = {
       method: Methods.CANCEL_RECURRING,
       ukey: this.userKey,
       epid,
-      reason,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      reason
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof CancelHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<
+      Payload,
+      { success: string } | { error?: string; message?: string; ecode: string }
+    >(payload, useSecretKey);
   };
 
   /**
    * Update invoice ID of transaction
    *
+   * @since 1.0.0
    * @param   {string}  epid      The EPID of the transaction.
    * @param   {string}  invoiceId The invoice ID which will be updated the transaction with.
    * @returns {Promise}           Either { success: "1" } for success or { error } for error.
@@ -416,27 +362,16 @@ export class EuPlatesc {
       );
     }
 
-    const data: UpdateInvoiceIdHmac = {
+    const payload: Payload = {
       method: Methods.UPDATE_IID,
       ukey: this.userKey,
       epid,
-      invoice_id: invoiceId,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      invoice_id: invoiceId
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof UpdateInvoiceIdHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, { success: string } | { error: string }>(payload, useSecretKey);
   };
 
   /**
@@ -445,6 +380,7 @@ export class EuPlatesc {
    * If `from` and `to` are sent empty will search invoices in last 3 months.
    * Returns max 100 records.
    *
+   * @since 1.0.0
    * @param   {Date}    params.from Optional. Date the filter starts to search invoices from.
    * @param   {Date}    params.to   Optional. Date the filter ends to search invoices to.
    * @returns {Promise}             Either invoice list or error.
@@ -462,33 +398,23 @@ export class EuPlatesc {
     const start = params?.from instanceof Date ? params.from.toISOString().split('T')[0] : '';
     const end = params?.to instanceof Date ? params.to.toISOString().split('T')[0] : '';
 
-    const data: InvoiceListHmac = {
+    const payload: Payload = {
       method: Methods.INVOICES,
       ukey: this.userKey,
       mid: this.merchantId,
       from: start,
-      to: end,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      to: end
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof InvoiceListHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, { success: Invoice[] } | { error: string }>(payload, useSecretKey);
   };
 
   /**
    * Get invoice transaction list
    *
+   * @since 1.0.0
    * @param   {string}  invoice  Settlement invoice number.
    * @returns {Promise}          Either invoice transaction list or error.
    */
@@ -501,26 +427,18 @@ export class EuPlatesc {
       );
     }
 
-    const data: InvoiceTransactionHmac = {
+    const payload: Payload = {
       method: Methods.INVOICE,
       ukey: this.userKey,
-      invoice,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      invoice
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof InvoiceTransactionHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, { success: InvoiceTransaction[] } | { error: string }>(
+      payload,
+      useSecretKey
+    );
   };
 
   /**
@@ -528,6 +446,7 @@ export class EuPlatesc {
    *
    * If `params.from` and `params.to` are sent empty will search in last month.
    *
+   * @since 1.0.0
    * @param   {string} params.mid   Optional. Merchant IDs sepparated by comma. If empty, it will setup the merchant ID from client initialization.
    * @param   {Date}   params.from  Optional. Date the filter starts to search totals from.
    * @param   {Date}   params.to    Optional. Date the filter ends to search totals to.
@@ -544,38 +463,26 @@ export class EuPlatesc {
       );
     }
 
-    const { mids, from, to } = params!;
+    const start = params?.from instanceof Date ? params.from.toISOString().split('T')[0] : '';
+    const end = params?.to instanceof Date ? params.to.toISOString().split('T')[0] : '';
 
-    const start = from instanceof Date ? from.toISOString().split('T')[0] : '';
-    const end = to instanceof Date ? to.toISOString().split('T')[0] : '';
-
-    const data: InvoiceListHmac = {
+    const payload: Payload = {
       method: Methods.CAPTURED_TOTAL,
       ukey: this.userKey,
-      mids: mids ? mids.replaceAll(' ', '') : this.merchantId,
+      mids: params?.mids ? params?.mids.replaceAll(' ', '') : this.merchantId,
       from: start,
-      to: end,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      to: end
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof InvoiceListHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, { success: CapturedTotal } | { error: string }>(payload, useSecretKey);
   };
 
   /**
    * Get card art data
    *
+   * @since 1.0.0
    * @param   {string}  epid  The EPID of the transaction.
    * @returns {Promise}       Either the card art data or error.
    */
@@ -586,31 +493,24 @@ export class EuPlatesc {
       );
     }
 
-    const data: CaptureHmac = {
+    const payload: Payload = {
       method: Methods.CARDART,
       ukey: this.userKey,
-      ep_id: epid,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      ep_id: epid
     };
+
     const useSecretKey = false;
-    data.fp_hash = this.computeHmac(data, useSecretKey);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof CaptureHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, { success: CardArt } | { error: string; ecode: string }>(
+      payload,
+      useSecretKey
+    );
   };
 
   /**
    * Get saved cards of a customer
    *
+   * @since 1.0.0
    * @param   {string}  clientId  The ID of the client.
    * @param   {string}  mid       Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
    * @returns {Promise}           Either list of cards or error.
@@ -619,30 +519,19 @@ export class EuPlatesc {
     clientId: string,
     mid?: string
   ): Promise<{ cards: SavedCard[] } | { error: string; ecode: string }> => {
-    const data: SavedCardsHmac = {
+    const payload: Payload = {
       method: Methods.C2P_CARDS,
       mid: mid ?? this.merchantId,
-      c2p_id: clientId,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      c2p_id: clientId
     };
-    data.fp_hash = this.computeHmac(data);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof SavedCardsHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, { cards: SavedCard[] } | { error: string; ecode: string }>(payload);
   };
 
   /**
    * Remove card of a customer
    *
+   * @since 1.0.0
    * @param   {string}  clientId  The ID of the client.
    * @param   {string}  cardId    The ID of the card.
    * @param   {string}  mid       Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
@@ -653,69 +542,47 @@ export class EuPlatesc {
     cardId: string,
     mid?: string
   ): Promise<{ success: string } | { error: string; ecode: string }> => {
-    const data: RemoveCardHmac = {
+    const payload: Payload = {
       method: Methods.C2P_DELETE,
       mid: mid ?? this.merchantId,
       c2p_id: clientId,
-      c2p_cid: cardId,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      c2p_cid: cardId
     };
-    data.fp_hash = this.computeHmac(data);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof RemoveCardHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, { success: string } | { error: string; ecode: string }>(payload);
   };
 
   /**
    * Check merchant ID
    *
+   * @since 1.0.0
    * @param   {string}  mid   Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
    * @returns {Promise}       Merchant data or error.
    */
   public checkMid = async (mid?: string): Promise<Merchant | { error: string }> => {
-    const data: BaseTransactionHmac = {
+    const payload: Payload = {
       method: Methods.CHECK_MID,
-      mid: mid ?? this.merchantId,
-      timestamp: this.prepareTS(),
-      nonce: crypto.randomBytes(16).toString('hex')
+      mid: mid ?? this.merchantId
     };
-    data.fp_hash = this.computeHmac(data);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key as keyof BaseTransactionHmac]);
-    }
-
-    const response = await axios.post(this.baseUrl, formData, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    return response.data;
+    return await this.genericRequest<Payload, Merchant | { error: string }>(payload);
   };
 
   /**
    * Compute Hmac from data object
    *
-   * @param   {ComputeHmacData} data Object data created in order to generate the hash.
-   * @param   {boolean}         useSecretKey Whether to use the secret key or the user API key.
-   * @returns {string}          The hash generated from passed data.
+   * @since 1.0.0
+   * @param   {Base<T>} data Object data created in order to generate the hash.
+   * @param   {boolean} useSecretKey Whether to use the secret key or the user API key.
+   * @returns {string}  The hash generated from passed data.
    */
-  public computeHmac = (data: ComputeHmacData, useSecretKey: boolean = true): string => {
+  public computeHmac = <T>(data: Base<T>, useSecretKey: boolean = true): string => {
     let hmac: string = '';
     for (const key in data) {
-      if (0 === data[key as keyof ComputeHmacData]?.toString()?.length) {
+      if (0 === data[key as keyof Base<T>]?.toString()?.length) {
         hmac += '-';
       } else {
-        hmac += `${data[key as keyof ComputeHmacData]?.toString()?.length}${data[key as keyof ComputeHmacData]}`;
+        hmac += `${data[key as keyof Base<T>]?.toString()?.length}${data[key as keyof Base<T>] as string}`;
       }
     }
     const secretKey = this.testMode ? this.testSecretKey : useSecretKey ? this.secretKey : this.userApi;
@@ -726,9 +593,36 @@ export class EuPlatesc {
   };
 
   /**
+   * Wrapper for generic method that makes request with dynamic payload
+   *
+   * @since 1.0.0
+   * @param   {T}       payload       Data passed to make requests to EuPlatesc with.
+   * @param   {boolean} useSecretKey  Optional. Whether to use secret key or user API key for Hmac hashing. Default: true.
+   * @returns {Promise}
+   */
+  protected genericRequest = async <T, U>(payload: T, useSecretKey: boolean = true): Promise<U> => {
+    const data: Base<T> = {
+      ...payload,
+      timestamp: this.prepareTS(),
+      nonce: crypto.randomBytes(16).toString('hex')
+    };
+    data.fp_hash = this.computeHmac<T>(data, useSecretKey);
+
+    const formData = new FormData();
+    for (const key in data) {
+      formData.append(key, data[key as keyof T]);
+    }
+
+    const response = await axios.post(this.baseUrl, formData);
+
+    return response.data;
+  };
+
+  /**
    * Format timestamp as YYYYMMDDHHMMSS
    *
-   * @returns {string} Formatter timestamp.
+   * @since 1.0.0
+   * @returns {string} Formatted timestamp.
    */
   protected prepareTS = (): string => {
     const dt = new Date();
