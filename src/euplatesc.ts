@@ -4,7 +4,14 @@ import FormData from 'form-data';
 
 import { EUPLATESC_GATEWAY_URL, EUPLATESC_TEST_MERCHANT_ID, EUPLATESC_TEST_SECRET_KEY } from './utils/constants';
 import { BaseOrder, Config, Hmac, Methods, Order } from './types';
-import { BaseHmac, BaseTransactionHmac, CaptureHmac, PartialCaptureHmac } from './types/Hmac.type';
+import {
+  BaseHmac,
+  BaseTransactionHmac,
+  CaptureHmac,
+  ComputeHmacData,
+  PartialCaptureHmac,
+  RefundHmac
+} from './types/Hmac.type';
 import { prepareTS } from './utils/helpers';
 
 export class EuPlatesc {
@@ -184,9 +191,9 @@ export class EuPlatesc {
    * Capture or reversal a transaction
    *
    * @since 1.0.0
-   * @param epid The EPID of the transaction.
-   * @param isReversal Optional. Whether it's a reversal or capture. Default: false
-   * @returns Promise<{ success: string } | { error: string }>
+   * @param epid        The EPID of the transaction.
+   * @param isReversal  Optional. Whether it's a reversal or capture. Default: false
+   * @returns           Promise<{ success: string } | { error: string }>
    */
   public captureReversal = async (
     epid: string,
@@ -224,9 +231,9 @@ export class EuPlatesc {
    * Partial capture a transaction
    *
    * @since 1.0.0
-   * @param epid The EPID of the transaction.
-   * @param amount Amount to be captured.
-   * @returns Promise<{ success: string } | { error: string }>
+   * @param epid    The EPID of the transaction.
+   * @param amount  Amount to be captured.
+   * @returns       Promise<{ success: string } | { error?: string; message?: string; ecode: string }>
    */
   public partialCapture = async (
     epid: string,
@@ -261,7 +268,48 @@ export class EuPlatesc {
     return response.data;
   };
 
-  public refund = () => {};
+  /**
+   * (Partial) Refund of a transaction
+   *
+   * @param epid    The EPID of the transaction.
+   * @param amount  Amount to be captured.
+   * @param reason  Optional. The reason why the transaction will be refunded.
+   * @returns Promise<{ success: string } | { error?: string; message?: string; ecode: string }>
+   */
+  public refund = async (
+    epid: string,
+    amount: number,
+    reason = ''
+  ): Promise<{ success: string } | { error?: string; message?: string; ecode: string }> => {
+    if (!this._userKey || !this._userApi) {
+      throw new Error(
+        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+      );
+    }
+
+    const data: RefundHmac = {
+      method: Methods.REFUND,
+      ukey: this._userKey,
+      amount: amount.toFixed(2).toString(),
+      reason,
+      epid,
+      timestamp: prepareTS(),
+      nonce: crypto.randomBytes(16).toString('hex')
+    };
+    const useSecretKey = false;
+    data.fp_hash = this.computeHmac(data, useSecretKey);
+
+    const formData = new FormData();
+    for (const key in data) {
+      formData.append(key, data[key as keyof RefundHmac]);
+    }
+
+    const response = await axios.post(this.baseUrl, formData, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    return response.data;
+  };
 
   public cancelRecurring = () => {};
 
@@ -281,20 +329,13 @@ export class EuPlatesc {
 
   public checkMid = () => {};
 
-  public computeHmac = (
-    data: BaseHmac | BaseTransactionHmac | CaptureHmac | PartialCaptureHmac,
-    useSecretKey = true
-  ): string => {
+  public computeHmac = (data: ComputeHmacData, useSecretKey = true): string => {
     let hmac: string = '';
     for (const key in data) {
-      if (
-        0 === data[key as keyof (BaseHmac | BaseTransactionHmac | CaptureHmac | PartialCaptureHmac)]?.toString()?.length
-      ) {
+      if (0 === data[key as keyof ComputeHmacData]?.toString()?.length) {
         hmac += '-';
       } else {
-        hmac += `${
-          data[key as keyof (BaseHmac | BaseTransactionHmac | CaptureHmac | PartialCaptureHmac)]?.toString()?.length
-        }${data[key as keyof (BaseHmac | BaseTransactionHmac | CaptureHmac | PartialCaptureHmac)]}`;
+        hmac += `${data[key as keyof ComputeHmacData]?.toString()?.length}${data[key as keyof ComputeHmacData]}`;
       }
     }
     const secretKey = this._testMode ? EUPLATESC_TEST_SECRET_KEY : useSecretKey ? this._secretKey : this._userApi;
