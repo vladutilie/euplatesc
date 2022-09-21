@@ -2,7 +2,6 @@ import * as crypto from 'crypto';
 import axios from 'axios';
 import FormData from 'form-data';
 
-import { EUPLATESC_GATEWAY_URL, EUPLATESC_TEST_MERCHANT_ID, EUPLATESC_TEST_SECRET_KEY } from './utils/constants';
 import {
   BaseOrder,
   CapturedTotal,
@@ -30,17 +29,20 @@ import {
   SavedCardsHmac,
   UpdateInvoiceIdHmac
 } from './types/Hmac.type';
-import { prepareTS } from './utils/helpers';
 
 export class EuPlatesc {
   protected baseUrl = 'https://manager.euplatesc.ro/v3/?action=ws';
+  protected gatewayUrl = 'https://secure.euplatesc.ro/tdsprocess/tranzactd.php';
 
-  _merchantId: string;
-  _secretKey: string;
-  _testMode = false;
+  private _merchantId: string;
+  private _secretKey: string;
+  private _testMode = false;
 
-  _userKey: string;
-  _userApi: string;
+  private _testMerchantId = 'testaccount';
+  private _testSecretKey = '00112233445566778899AABBCCDDEEFF';
+
+  private _userKey: string;
+  private _userApi: string;
 
   public constructor({ merchantId, secretKey, testMode, userKey, userApi }: Config) {
     this._merchantId = merchantId;
@@ -52,6 +54,14 @@ export class EuPlatesc {
 
   get merchantId(): string {
     return this._merchantId;
+  }
+
+  get testMerchantId(): string {
+    return this._testMerchantId;
+  }
+
+  get testSecretKey(): string {
+    return this._testSecretKey;
   }
 
   get secretKey(): string {
@@ -105,8 +115,8 @@ export class EuPlatesc {
       curr: data.currency,
       invoice_id: data.invoiceId,
       order_desc: data.orderDescription,
-      merch_id: this.testMode ? EUPLATESC_TEST_MERCHANT_ID : this.merchantId,
-      timestamp: prepareTS(),
+      merch_id: this.testMode ? this.testMerchantId : this.merchantId,
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex') // 32 bytes for 64 chars
     };
     if (data.frequency) {
@@ -184,7 +194,7 @@ export class EuPlatesc {
 
     const params = new URLSearchParams(hmacData);
 
-    return { paymentUrl: `${EUPLATESC_GATEWAY_URL}?${params}` };
+    return { paymentUrl: `${this.gatewayUrl}?${params}` };
   };
 
   /**
@@ -207,7 +217,7 @@ export class EuPlatesc {
       method: Methods.CHECK_STATUS,
       mid: this.merchantId,
       ...(params.epid ? { epid: params.epid } : { invoice_id: params.invoiceId }),
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     data.fp_hash = this.computeHmac(data);
@@ -247,7 +257,7 @@ export class EuPlatesc {
       method: isReversal ? Methods.REVERSAL : Methods.CAPTURE,
       ukey: this.userKey,
       epid,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -288,7 +298,7 @@ export class EuPlatesc {
       ukey: this.userKey,
       amount: amount.toFixed(2).toString(),
       epid,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -331,7 +341,7 @@ export class EuPlatesc {
       amount: amount.toFixed(2).toString(),
       reason,
       epid,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -371,7 +381,7 @@ export class EuPlatesc {
       ukey: this.userKey,
       epid,
       reason,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -411,7 +421,7 @@ export class EuPlatesc {
       ukey: this.userKey,
       epid,
       invoice_id: invoiceId,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -458,7 +468,7 @@ export class EuPlatesc {
       mid: this.merchantId,
       from: start,
       to: end,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -495,7 +505,7 @@ export class EuPlatesc {
       method: Methods.INVOICE,
       ukey: this.userKey,
       invoice,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -545,7 +555,7 @@ export class EuPlatesc {
       mids: mids ? mids.replaceAll(' ', '') : this.merchantId,
       from: start,
       to: end,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -580,7 +590,7 @@ export class EuPlatesc {
       method: Methods.CARDART,
       ukey: this.userKey,
       ep_id: epid,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     const useSecretKey = false;
@@ -613,7 +623,7 @@ export class EuPlatesc {
       method: Methods.C2P_CARDS,
       mid: mid ?? this.merchantId,
       c2p_id: clientId,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     data.fp_hash = this.computeHmac(data);
@@ -648,7 +658,7 @@ export class EuPlatesc {
       mid: mid ?? this.merchantId,
       c2p_id: clientId,
       c2p_cid: cardId,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     data.fp_hash = this.computeHmac(data);
@@ -675,7 +685,7 @@ export class EuPlatesc {
     const data: BaseTransactionHmac = {
       method: Methods.CHECK_MID,
       mid: mid ?? this.merchantId,
-      timestamp: prepareTS(),
+      timestamp: this.prepareTS(),
       nonce: crypto.randomBytes(16).toString('hex')
     };
     data.fp_hash = this.computeHmac(data);
@@ -708,10 +718,29 @@ export class EuPlatesc {
         hmac += `${data[key as keyof ComputeHmacData]?.toString()?.length}${data[key as keyof ComputeHmacData]}`;
       }
     }
-    const secretKey = this.testMode ? EUPLATESC_TEST_SECRET_KEY : useSecretKey ? this.secretKey : this.userApi;
+    const secretKey = this.testMode ? this.testSecretKey : useSecretKey ? this.secretKey : this.userApi;
     const binKey = Buffer.from(secretKey, 'hex');
     const hash = crypto.createHmac('md5', binKey).update(hmac, 'utf8').digest('hex');
 
     return hash;
+  };
+
+  protected prepareTS = (): string => {
+    const dt = new Date();
+    const date: { [k: string]: string } = {
+      y: dt.getUTCFullYear().toString(),
+      mo: (dt.getUTCMonth() + 1).toString().padStart(2, '0'),
+      d: dt.getUTCDate().toString().padStart(2, '0'),
+      h: dt.getUTCHours().toString().padStart(2, '0'),
+      mi: dt.getUTCMinutes().toString().padStart(2, '0'),
+      s: dt.getUTCSeconds().toString().padStart(2, '0')
+    };
+
+    let timestamp = '';
+    for (const t in date) {
+      timestamp += date[t as string];
+    }
+
+    return timestamp;
   };
 }
