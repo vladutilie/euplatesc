@@ -1,19 +1,28 @@
 import * as crypto from 'crypto';
 import axios from 'axios';
+import FormData from 'form-data';
 
 import { EUPLATESC_GATEWAY_URL, EUPLATESC_TEST_MERCHANT_ID, EUPLATESC_TEST_SECRET_KEY } from './utils/constants';
 import { BaseOrder, Config, Hmac, Methods, Order } from './types';
-import { BaseHmac, BaseTransactionHmac } from './types/Hmac.type';
+import { BaseHmac, BaseTransactionHmac, CaptureHmac } from './types/Hmac.type';
 import { prepareTS } from './utils/helpers';
+
 export class EuPlatesc {
+  protected baseUrl = 'https://manager.euplatesc.ro/v3/?action=ws';
+
   _merchantId: string;
   _secretKey: string;
   _testMode = false;
 
-  public constructor({ merchantId, secretKey, testMode }: Config) {
+  _userKey: string;
+  _userApi: string;
+
+  public constructor({ merchantId, secretKey, testMode, userKey, userApi }: Config) {
     this._merchantId = merchantId;
     this._secretKey = secretKey;
     this._testMode = 'boolean' === typeof testMode ? testMode : false;
+    this._userKey = userKey || '';
+    this._userApi = userApi || '';
   }
 
   get merchantId(): string {
@@ -145,7 +154,7 @@ export class EuPlatesc {
     }
 
     const data = this.getTransactionPayload({ epid, invoiceId });
-    const response = await axios.post('https://manager.euplatesc.ro/v3/?action=ws', data);
+    const response = await axios.post(this.baseUrl, data);
 
     return response.data;
   };
@@ -171,6 +180,46 @@ export class EuPlatesc {
     return formBody.join('&');
   };
 
+  /**
+   * Capture or reversal a transaction
+   *
+   * @since 1.0.0
+   * @param epid The EPID of the transaction.
+   * @param isReversal Optional. Whether it's a reversal or capture. Default: false
+   * @returns Promise<{ success: string } | { error: string }>
+   */
+  public captureReversalTransaction = async (
+    epid: string,
+    isReversal = false
+  ): Promise<{ success: string } | { error: string }> => {
+    if (!this._userKey || !this._userApi) {
+      throw new Error(
+        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+      );
+    }
+
+    const data: CaptureHmac = {
+      method: isReversal ? Methods.REVERSAL : Methods.CAPTURE,
+      ukey: this._userKey,
+      epid,
+      timestamp: prepareTS(),
+      nonce: crypto.randomBytes(16).toString('hex')
+    };
+    const useSecretKey = false;
+    data.fp_hash = this.computeHmac(data, useSecretKey);
+
+    const formData = new FormData();
+    for (const key in data) {
+      formData.append(key, data[key as keyof CaptureHmac]);
+    }
+
+    const response = await axios.post(this.baseUrl, formData, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    return response.data;
+  };
+
   public refund = () => {};
 
   public cancelRecurring = () => {};
@@ -191,20 +240,21 @@ export class EuPlatesc {
 
   public checkMid = () => {};
 
-  public computeHmac = (data: BaseHmac | BaseTransactionHmac): string => {
+  public computeHmac = (data: BaseHmac | BaseTransactionHmac | CaptureHmac, useSecretKey = true): string => {
     let hmac: string = '';
     for (const key in data) {
-      if (data[key as keyof (BaseHmac | BaseTransactionHmac)]?.toString()?.length == 0) {
+      if (0 === data[key as keyof (BaseHmac | BaseTransactionHmac | CaptureHmac)]?.toString()?.length) {
         hmac += '-';
       } else {
-        hmac += `${data[key as keyof (BaseHmac | BaseTransactionHmac)]?.toString()?.length}${
-          data[key as keyof (BaseHmac | BaseTransactionHmac)]
+        hmac += `${data[key as keyof (BaseHmac | BaseTransactionHmac | CaptureHmac)]?.toString()?.length}${
+          data[key as keyof (BaseHmac | BaseTransactionHmac | CaptureHmac)]
         }`;
       }
     }
-    const secretKey = this._testMode ? EUPLATESC_TEST_SECRET_KEY : this._secretKey;
+    const secretKey = this._testMode ? EUPLATESC_TEST_SECRET_KEY : useSecretKey ? this._secretKey : this._userApi;
     const binKey = Buffer.from(secretKey, 'hex');
     const hash = crypto.createHmac('md5', binKey).update(hmac, 'utf8').digest('hex');
+    console.log('secretKey', secretKey);
 
     return hash;
   };
