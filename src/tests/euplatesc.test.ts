@@ -279,7 +279,7 @@ describe('euplatesc unit tests', (): void => {
   });
 
   describe('getStatus()', (): void => {
-    test('check exception for no passed params', (): void => {
+    test('throw exception for no passed params', (): void => {
       let euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
@@ -331,8 +331,8 @@ describe('euplatesc unit tests', (): void => {
     });
   });
 
-  describe('captureReversalTransaction()', (): void => {
-    test('check exception for no needed params', (): void => {
+  describe('captureReversal()', (): void => {
+    test('throw exception for no needed params', (): void => {
       let euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
@@ -341,7 +341,22 @@ describe('euplatesc unit tests', (): void => {
       euplatescClient = new EuPlatesc(euplatescConfig);
 
       expect(async () => {
-        await euplatescClient.captureReversalTransaction('1');
+        await euplatescClient.captureReversal('1');
+      }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('partialCapture()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.partialCapture('1', 1234);
       }).rejects.toThrow(Error);
     });
   });
