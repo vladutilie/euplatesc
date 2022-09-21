@@ -3,7 +3,6 @@ import axios from 'axios';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-import { EUPLATESC_TEST_MERCHANT_ID, EUPLATESC_TEST_SECRET_KEY } from '../utils/constants';
 import { EuPlatesc } from '../euplatesc';
 import { Config, Hmac, BaseHmac, Order } from '../types';
 
@@ -269,7 +268,7 @@ describe('euplatesc unit tests', (): void => {
         curr: 'RON',
         invoice_id: '00012',
         order_desc: 'Test order',
-        merch_id: EUPLATESC_TEST_MERCHANT_ID,
+        merch_id: 'testaccount',
         timestamp: '20190101000000',
         nonce: 'f7d93357a7040619bc416881c479687f'
       };
