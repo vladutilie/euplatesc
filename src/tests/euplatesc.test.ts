@@ -360,4 +360,19 @@ describe('euplatesc unit tests', (): void => {
       }).rejects.toThrow(Error);
     });
   });
+
+  describe('refund()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.refund('1', 1234, '');
+      }).rejects.toThrow(Error);
+    });
+  });
 });
