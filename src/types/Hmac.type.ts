@@ -25,49 +25,21 @@ export type BaseHmac = {
   recurent_exp?: string;
 };
 
-export type BaseTransactionHmac = {
+export type Base<T> = { timestamp: string; nonce: string; fp_hash?: string } & T;
+
+export type Payload = Partial<{
   method: Methods;
   mid: string;
-  epid?: string;
-  invoice_id?: string;
-  timestamp: string;
-  nonce: string;
-  fp_hash?: string;
-};
-
-export type CaptureHmac = {
-  method: Methods;
+  epid: string;
+  invoice_id: string;
   ukey: string;
-  epid?: string;
-  ep_id?: string;
-  timestamp: string;
-  nonce: string;
-  fp_hash?: string;
-};
-
-export type PartialCaptureHmac = CaptureHmac & { amount: string };
-
-export type RefundHmac = PartialCaptureHmac & { reason: string };
-
-export type CancelHmac = CaptureHmac & { reason: string };
-
-export type UpdateInvoiceIdHmac = CaptureHmac & { invoice_id: string };
-
-export type InvoiceListHmac = Omit<CaptureHmac, 'epid'> & { mid?: string; mids?: string; from: string; to: string };
-
-export type InvoiceTransactionHmac = Omit<CaptureHmac, 'epid'> & { invoice: string };
-
-export type SavedCardsHmac = BaseTransactionHmac & { c2p_id: string };
-
-export type RemoveCardHmac = SavedCardsHmac & { c2p_cid: string };
-
-export type ComputeHmacData =
-  | BaseHmac
-  | BaseTransactionHmac
-  | CaptureHmac
-  | PartialCaptureHmac
-  | RefundHmac
-  | CancelHmac
-  | UpdateInvoiceIdHmac
-  | InvoiceListHmac
-  | InvoiceTransactionHmac;
+  amount: string;
+  reason: string;
+  from: string;
+  to: string;
+  invoice: string;
+  mids: string;
+  ep_id: string;
+  c2p_id: string;
+  c2p_cid: string;
+}>;
