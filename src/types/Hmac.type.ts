@@ -45,3 +45,7 @@ export type CaptureHmac = {
 };
 
 export type PartialCaptureHmac = CaptureHmac & { amount: string };
+
+export type RefundHmac = PartialCaptureHmac & { reason: string };
+
+export type ComputeHmacData = BaseHmac | BaseTransactionHmac | CaptureHmac | PartialCaptureHmac | RefundHmac;
