@@ -293,9 +293,9 @@ describe('euplatesc unit tests', (): void => {
 
     test('check request data', async (): Promise<void> => {
       let euplatescConfig: Config = {
-        merchantId: '44840988187',
-        secretKey: 'C6C7C6A53066CABA0105245DDA681A1C763B575B',
-        testMode: false
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
       };
       euplatescClient = new EuPlatesc(euplatescConfig);
 
@@ -325,7 +325,8 @@ describe('euplatesc unit tests', (): void => {
         ]`
       });
 
-      await euplatescClient.getStatus({ epid: '2D42C36CF2DB1C20BC9ED102C239B9B570A384E6' });
+      await euplatescClient.getStatus({ epid: '123' });
+
       expect(mockedAxios.post).toHaveBeenCalledTimes(1);
     });
   });
