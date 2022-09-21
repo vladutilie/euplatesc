@@ -26,8 +26,8 @@ describe('euplatesc unit tests', (): void => {
     });
 
     test('check the private key', (): void => {
-      expect(typeof euplatescClient.privateKey).toBe('string');
-      expect(euplatescClient.privateKey).toBe(euplatescConfig.secretKey);
+      expect(typeof euplatescClient.secretKey).toBe('string');
+      expect(euplatescClient.secretKey).toBe(euplatescConfig.secretKey);
     });
 
     test('check the test mode', (): void => {
@@ -288,15 +288,15 @@ describe('euplatesc unit tests', (): void => {
       euplatescClient = new EuPlatesc(euplatescConfig);
 
       expect(async () => {
-        await euplatescClient.getTransaction({});
+        await euplatescClient.getStatus({});
       }).rejects.toThrow(Error);
     });
 
     test('check request data', async (): Promise<void> => {
       let euplatescConfig: Config = {
-        merchantId: 'my-merchant-id',
-        secretKey: 'some-private-key',
-        testMode: true
+        merchantId: '44840988187',
+        secretKey: 'C6C7C6A53066CABA0105245DDA681A1C763B575B',
+        testMode: false
       };
       euplatescClient = new EuPlatesc(euplatescConfig);
 
@@ -326,7 +326,7 @@ describe('euplatesc unit tests', (): void => {
         ]`
       });
 
-      await euplatescClient.getTransaction({ epid: '123' });
+      await euplatescClient.getStatus({ epid: '2D42C36CF2DB1C20BC9ED102C239B9B570A384E6' });
       expect(mockedAxios.post).toHaveBeenCalledTimes(1);
     });
   });
@@ -372,6 +372,96 @@ describe('euplatesc unit tests', (): void => {
 
       expect(async () => {
         await euplatescClient.refund('1', 1234, '');
+      }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('cancelRecurring()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.cancelRecurring('1');
+      }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('updateInvoiceId()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.updateInvoiceId('1', '2');
+      }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('getInvoiceList()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.getInvoiceList({ from: new Date('2022-01-01'), to: new Date('2022-02-01') });
+      }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('getInvoiceTransactions()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.getInvoiceTransactions('invoice id');
+      }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('getCapturedTotal()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.getCapturedTotal({});
+      }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('getCardArtData()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.getCardArt('1');
       }).rejects.toThrow(Error);
     });
   });
