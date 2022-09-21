@@ -43,3 +43,5 @@ export type CaptureHmac = {
   nonce: string;
   fp_hash?: string;
 };
+
+export type PartialCaptureHmac = CaptureHmac & { amount: string };
