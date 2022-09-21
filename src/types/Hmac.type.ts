@@ -34,3 +34,12 @@ export type BaseTransactionHmac = {
   nonce: string;
   fp_hash?: string;
 };
+
+export type CaptureHmac = {
+  method: Methods;
+  ukey: string;
+  epid: string;
+  timestamp: string;
+  nonce: string;
+  fp_hash?: string;
+};
