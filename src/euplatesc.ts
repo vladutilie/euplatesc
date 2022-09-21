@@ -31,15 +31,15 @@ import {
 } from './types/Hmac.type';
 
 export class EuPlatesc {
-  protected baseUrl = 'https://manager.euplatesc.ro/v3/?action=ws';
+  protected baseUrl = 'https://manager.euplatesc.ro/v3/index.php?action=ws';
   protected gatewayUrl = 'https://secure.euplatesc.ro/tdsprocess/tranzactd.php';
 
   private _merchantId: string;
   private _secretKey: string;
-  private _testMode = false;
+  private _testMode: boolean = false;
 
-  private _testMerchantId = 'testaccount';
-  private _testSecretKey = '00112233445566778899AABBCCDDEEFF';
+  private _testMerchantId: string = 'testaccount';
+  private _testSecretKey: string = '00112233445566778899AABBCCDDEEFF';
 
   private _userKey: string;
   private _userApi: string;
@@ -725,6 +725,11 @@ export class EuPlatesc {
     return hash;
   };
 
+  /**
+   * Format timestamp as YYYYMMDDHHMMSS
+   *
+   * @returns {string} Formatter timestamp.
+   */
   protected prepareTS = (): string => {
     const dt = new Date();
     const date: { [k: string]: string } = {
@@ -736,10 +741,8 @@ export class EuPlatesc {
       s: dt.getUTCSeconds().toString().padStart(2, '0')
     };
 
-    let timestamp = '';
-    for (const t in date) {
-      timestamp += date[t as string];
-    }
+    let timestamp: string = '';
+    Object.keys(date).map((k) => (timestamp += date[k]));
 
     return timestamp;
   };
