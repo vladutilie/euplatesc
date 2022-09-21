@@ -254,7 +254,6 @@ export class EuPlatesc {
     const secretKey = this._testMode ? EUPLATESC_TEST_SECRET_KEY : useSecretKey ? this._secretKey : this._userApi;
     const binKey = Buffer.from(secretKey, 'hex');
     const hash = crypto.createHmac('md5', binKey).update(hmac, 'utf8').digest('hex');
-    console.log('secretKey', secretKey);
 
     return hash;
   };
