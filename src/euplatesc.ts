@@ -18,9 +18,6 @@ import {
 import { Base, BaseHmac, Payload } from './types/Hmac.type';
 
 export class EuPlatesc {
-  protected baseUrl = 'https://manager.euplatesc.ro/v3/index.php?action=ws';
-  protected gatewayUrl = 'https://secure.euplatesc.ro/tdsprocess/tranzactd.php';
-
   private _merchantId: string;
   private _secretKey: string;
   private _testMode: boolean = false;
@@ -31,6 +28,19 @@ export class EuPlatesc {
   private _userKey: string;
   private _userApi: string;
 
+  protected baseUrl = 'https://manager.euplatesc.ro/v3/index.php?action=ws';
+  protected gatewayUrl = 'https://secure.euplatesc.ro/tdsprocess/tranzactd.php';
+
+  /**
+   * EuPlătesc class constructor
+   *
+   * @since 1.0.0
+   * @param {string} param.merchantId Merchant ID.
+   * @param {string} param.secretKey  Secret key.
+   * @param {string} param.testMode   Optional. Test mode flag. Default: false.
+   * @param {string} param.userKey    Optional. User key. You can find it in EuPlătesc panel > Settings > User settings. Default: ''.
+   * @param {string} param.userApi    Optional. User API key. You can find it in EuPlătesc panel > Settings > User settings. Default: ''.
+   */
   public constructor({ merchantId, secretKey, testMode, userKey, userApi }: Config) {
     this._merchantId = merchantId;
     this._secretKey = secretKey;
@@ -70,7 +80,7 @@ export class EuPlatesc {
   /**
    * Generate EuPlatesc payment URL
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {Object} data         Data to generate the payment URL.
    * @returns {paymentUrl: string}  The URL where a payment can be made on euplatesc.ro website.
    */
@@ -188,7 +198,7 @@ export class EuPlatesc {
   /**
    * Get status of a transaction
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  params.epid      The EPID of the transaction.
    * @param   {string}  params.invoiceId The EPID of the transaction.
    * @returns {Promise}                  Either {success: string} for success or { error, ecode } for error.
@@ -213,7 +223,7 @@ export class EuPlatesc {
   /**
    * Capture or reversal a transaction
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  epid        The EPID of the transaction.
    * @param   {boolean} isReversal  Optional. Whether it's a reversal or capture. Default: false
    * @returns {Promise}             Either { success: "1" } for success or { error: string } for error.
@@ -242,7 +252,7 @@ export class EuPlatesc {
   /**
    * Partial capture a transaction
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  epid    The EPID of the transaction.
    * @param   {number}  amount  Amount to be captured.
    * @returns {Promise}         Either { success: "1" } for success or { error?: string; message?: string; ecode: string } for error.
@@ -275,7 +285,7 @@ export class EuPlatesc {
   /**
    * (Partial) Refund of a transaction
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  epid    The EPID of the transaction.
    * @param   {string}  amount  Amount to be captured.
    * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
@@ -314,7 +324,7 @@ export class EuPlatesc {
    * Watch out: if you just test this method with a failed EPID, a valid recurring payment will be canceled :(
    * It might be an EuPlatesc bug.
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  epid    The EPID of the transaction.
    * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
    * @returns {Promise}         Either { success } for success or { error?: string; message?: string; ecode: string } for error.
@@ -347,7 +357,7 @@ export class EuPlatesc {
   /**
    * Update invoice ID of transaction
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  epid      The EPID of the transaction.
    * @param   {string}  invoiceId The invoice ID which will be updated the transaction with.
    * @returns {Promise}           Either { success: "1" } for success or { error } for error.
@@ -380,7 +390,7 @@ export class EuPlatesc {
    * If `from` and `to` are sent empty will search invoices in last 3 months.
    * Returns max 100 records.
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {Date}    params.from Optional. Date the filter starts to search invoices from.
    * @param   {Date}    params.to   Optional. Date the filter ends to search invoices to.
    * @returns {Promise}             Either invoice list or error.
@@ -414,7 +424,7 @@ export class EuPlatesc {
   /**
    * Get invoice transaction list
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  invoice  Settlement invoice number.
    * @returns {Promise}          Either invoice transaction list or error.
    */
@@ -446,7 +456,7 @@ export class EuPlatesc {
    *
    * If `params.from` and `params.to` are sent empty will search in last month.
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string} params.mid   Optional. Merchant IDs sepparated by comma. If empty, it will setup the merchant ID from client initialization.
    * @param   {Date}   params.from  Optional. Date the filter starts to search totals from.
    * @param   {Date}   params.to    Optional. Date the filter ends to search totals to.
@@ -482,7 +492,7 @@ export class EuPlatesc {
   /**
    * Get card art data
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  epid  The EPID of the transaction.
    * @returns {Promise}       Either the card art data or error.
    */
@@ -510,7 +520,7 @@ export class EuPlatesc {
   /**
    * Get saved cards of a customer
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  clientId  The ID of the client.
    * @param   {string}  mid       Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
    * @returns {Promise}           Either list of cards or error.
@@ -531,7 +541,7 @@ export class EuPlatesc {
   /**
    * Remove card of a customer
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {string}  clientId  The ID of the client.
    * @param   {string}  cardId    The ID of the card.
    * @param   {string}  mid       Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
@@ -555,9 +565,9 @@ export class EuPlatesc {
   /**
    * Check merchant ID
    *
-   * @since 1.0.0
-   * @param   {string}  mid   Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
-   * @returns {Promise}       Merchant data or error.
+   * @since   1.0.0
+   * @param   {string}  mid Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
+   * @returns {Promise}     Merchant data or error.
    */
   public checkMid = async (mid?: string): Promise<Merchant | { error: string }> => {
     const payload: Payload = {
@@ -571,10 +581,10 @@ export class EuPlatesc {
   /**
    * Compute Hmac from data object
    *
-   * @since 1.0.0
-   * @param   {Base<T>} data Object data created in order to generate the hash.
-   * @param   {boolean} useSecretKey Whether to use the secret key or the user API key.
-   * @returns {string}  The hash generated from passed data.
+   * @since   1.0.0
+   * @param   {Base<T>} data          Object data created in order to generate the hash.
+   * @param   {boolean} useSecretKey  Whether to use the secret key or the user API key.
+   * @returns {string}                The hash generated from passed data.
    */
   public computeHmac = <T>(data: Base<T>, useSecretKey: boolean = true): string => {
     let hmac: string = '';
@@ -595,7 +605,7 @@ export class EuPlatesc {
   /**
    * Wrapper for generic method that makes request with dynamic payload
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @param   {T}       payload       Data passed to make requests to EuPlatesc with.
    * @param   {boolean} useSecretKey  Optional. Whether to use secret key or user API key for Hmac hashing. Default: true.
    * @returns {Promise}
@@ -621,7 +631,7 @@ export class EuPlatesc {
   /**
    * Format timestamp as YYYYMMDDHHMMSS
    *
-   * @since 1.0.0
+   * @since   1.0.0
    * @returns {string} Formatted timestamp.
    */
   protected prepareTS = (): string => {
