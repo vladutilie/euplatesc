@@ -2,7 +2,7 @@
   "name": "euplatesc",
   "version": "1.0.0",
   "description": "The payment gateway for EuPlatesc.ro",
-  "main": "./dist/index.js",
+  "main": "./dist/euplatesc.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
@@ -25,7 +25,7 @@
     "eu platesc"
   ],
   "author": "Vlad Ilie <vladilie94@gmail.com> (https://vladilie.ro)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/vladutilie/euplatesc/issues"
   },
