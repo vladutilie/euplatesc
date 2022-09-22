@@ -17,7 +17,7 @@ import {
 } from './types';
 import { Base, BaseHmac, Payload } from './types/Hmac.type';
 
-export class EuPlatesc {
+export default class EuPlatesc {
   private _merchantId: string;
   private _secretKey: string;
   private _testMode: boolean = false;
