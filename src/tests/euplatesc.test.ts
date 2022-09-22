@@ -3,7 +3,7 @@ import axios from 'axios';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-import { EuPlatesc } from '../euplatesc';
+import EuPlatesc from '../euplatesc';
 import { Config, Hmac, BaseHmac, Order } from '../types';
 
 describe('euplatesc unit tests', (): void => {
