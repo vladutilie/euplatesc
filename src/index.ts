@@ -1,0 +1,1 @@
+export { EuPlatesc } from './euplatesc';
