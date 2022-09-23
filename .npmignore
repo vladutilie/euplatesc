@@ -1,5 +1,4 @@
 *.log
-npm-debug.log*
 
 # Coverage directory used by tools like istanbul
 coverage
@@ -14,8 +13,7 @@ yarn.lock
 
 # project files
 src
-CHANGELOG.md
 .eslintrc.json
 .gitignore
 jest.config.json
-tsconfig.json
+tsconfig*.json
