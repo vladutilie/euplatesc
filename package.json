@@ -1,5 +1,5 @@
 {
-  "name": "euplatesc",
+  "name": "@vladutilie/euplatesc",
   "version": "1.0.0",
   "description": "The payment gateway for EuPlatesc.ro",
   "main": "dist/cjs/index.js",
@@ -21,7 +21,7 @@
   ],
   "publishConfig": {
     "access": "public",
-    "registry": "https://npm.pkg.github.com"
+    "@vladutilie:registry": "https://npm.pkg.github.com"
   },
   "repository": {
     "type": "git",
