@@ -41,6 +41,8 @@ jobs:
         with:
           node-version: 16
           registry-url: 'https://npm.pkg.github.com'
+          scope: '@vladutilie'
+      - run: yarn run addscope
       - name: Publish to GitHub Packages
         run: yarn publish
         env:
