@@ -13,6 +13,8 @@ yarn.lock
 
 # project files
 src
+tests
+tools
 .eslintrc.json
 .gitignore
 jest.config.json
