@@ -4,15 +4,16 @@
   "description": "The payment gateway for EuPlatesc.ro",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "umd:main": "dist/umd/index.js",
   "types": "dist/types/index.d.js",
   "scripts": {
     "build": "npm run build:cjs && npm run build:esm && npm run build:types",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
-    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "node tools/cleanup cjs && tsc -p tsconfig.cjs.json",
+    "build:esm": "node tools/cleanup esm && tsc -p tsconfig.esm.json",
     "build:types": "tsc -p tsconfig.types.json",
+    "clean": "node tools/cleanup",
     "lint": "eslint \"**\\*.ts\"",
-    "test": "jest --config jest.config.json"
+    "test": "jest --config jest.config.json",
+    "addscope": "node tools/package.json name @vladutilie/euplatesc"
   },
   "files": [
     "dist",
