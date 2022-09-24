@@ -8,6 +8,5 @@
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/tests/*"]
+  "include": ["src/**/*"]
 }
