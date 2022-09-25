@@ -1,8 +1,4 @@
-export type Order = {
-  hash?: string;
-} & BillingDetails &
-  ShippingDetails &
-  Extra;
+export type Order = BillingDetails & ShippingDetails & Extra;
 
 export type BillingDetails = {
   billingFirstName?: string;
