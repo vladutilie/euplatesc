@@ -81,8 +81,8 @@ export class EuPlatesc {
    * Generate EuPlatesc payment URL
    *
    * @since   1.0.0
-   * @param   {Object} data         Data to generate the payment URL.
-   * @returns {paymentUrl: string}  The URL where a payment can be made on euplatesc.ro website.
+   * @param   {Hmac & Order}        data  Data to generate the payment URL.
+   * @returns {paymentUrl: string}        The URL where a payment can be made on euplatesc.ro website.
    */
   public paymentUrl = (data: Hmac & Order): { paymentUrl: string } => {
     if (!data.amount) {
@@ -194,6 +194,9 @@ export class EuPlatesc {
 
     return { paymentUrl: `${this.gatewayUrl}?${params}` };
   };
+
+  // TODO: Create handleResponse() method (after a user gets back to the website, the data should be checked against fp_hash and action)
+  // And handle the response - see docs on euplatesc.ro
 
   /**
    * Get status of a transaction
