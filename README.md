@@ -10,7 +10,22 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 2. [Getting started](#getting-started)
 3. [Installation](#installation)
 4. [Usage](#usage)
-5. [API](#examples)
+5. [API](#api)
+   - [Constructor](#api-constructor)
+   - [paymentUrl](#api-paymentUrl)
+   - [getStatus](#api-getStatus)
+   - [captureReversal](#api-captureReversal)
+   - [partialCapture](#api-partialCapture)
+   - [refund](#api-refund)
+   - [cancelRecurring](#api-cancelRecurring)
+   - [updateInvoiceId](#api-updateInvoiceId)
+   - [getInvoiceList](#api-getInvoiceList)
+   - [getInvoiceTransactions](#api-getInvoiceTransactions)
+   - [getCapturedTotal](#api-getCapturedTotal)
+   - [getCardArt](#api-getCardArt)
+   - [getSavedCards](#api-getSavedCards)
+   - [removeCard](#api-removeCard)
+   - [checkMid](#api-checkMid)
 6. [Credits](#credits)
 7. [Built with](#built-with)
 8. [Authors?](#authors)
@@ -64,7 +79,7 @@ epClient.checkMid().then((midInfo) => console.log(midInfo));
 
 ## <a name="api"></a>API
 
-### Constructor
+### <a name="api-constructor"></a>Constructor
 
 ```js
 new EuPlatesc(params);
@@ -88,15 +103,15 @@ Example:
 import { EuPlatesc } from 'euplatesc';
 
 const client = new EuPlatesc({
-    merchantId: process.env.EUPLATEC_MERCHANT_ID,
-    secretKey: merchantId: process.env.EUPLATEC_SECRET_KEY,
-    testMode: 'true' === process.env.EUPLATESC_TEST_MODE,
-    userKey: process.env.EUPLATESC_USER_KEY,
-    userApi: process.env.EUPLATESC_USER_API
-})
+  merchantId: process.env.EUPLATEC_MERCHANT_ID,
+  secretKey: process.env.EUPLATEC_SECRET_KEY,
+  testMode: 'true' === process.env.EUPLATESC_TEST_MODE,
+  userKey: process.env.EUPLATESC_USER_KEY,
+  userApi: process.env.EUPLATESC_USER_API
+});
 ```
 
-### paymentUrl()
+### <a name="api-paymentUrl"></a>paymentUrl
 
 It generates the payment gateway URL to euplatesc.ro.
 
@@ -110,7 +125,7 @@ const data = {
   orderDescription: 'The description of the order'
 };
 
-const url = epClient.paymentUrl(data);
+console.log(epClient.paymentUrl(data));
 // { paymentUrl: 'https://secure.euplatesc.ro/tdsprocess/tranzactd.php?amount=...' }
 // This URL will redirect the user to a secure EuPlătesc payment page.
 ```
@@ -163,3 +178,29 @@ const url = epClient.paymentUrl(data);
 | lang                | 'ro' \| 'en' \| 'fr' \| 'de' \| 'it' \| 'es' \| 'hu' | Preselect the language of the payment page. If not sent the language will be chosen based on the client IP.                  |
 
 _\* required fields_
+
+### <a name="api-getStatus"></a>getStatus
+
+Get status of a transaction.
+
+```js
+import epClient from './lib/epClient';
+
+const param = {
+  epid: '15F124618DA2E299CBEFA787A09464352946F422'
+  // invoiceId: 'FPS12145601'
+};
+
+const url = epClient.getStatus(param);
+// { paymentUrl: 'https://secure.euplatesc.ro/tdsprocess/tranzactd.php?amount=...' }
+// This URL will redirect the user to a secure EuPlătesc payment page.
+```
+
+`getStatus` method param object looks like below:
+
+| Field     | Type   | Description                          |
+| --------- | ------ | ------------------------------------ |
+| epid      | string | The ID of the transaction.           |
+| invoiceId | string | The ID of the transaction's invoice. |
+
+You have to pass either `epid` of `invoiceId` as param object to get the status. If both are passed, the `epid` field has priority.
