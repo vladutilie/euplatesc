@@ -195,8 +195,8 @@ export class EuPlatesc {
     return { paymentUrl: `${this.gatewayUrl}?${params}` };
   };
 
-  // TODO: Create handleResponse() method (after a user gets back to the website, the data should be checked against fp_hash and action)
-  // And handle the response - see docs on euplatesc.ro
+  // TODO: Create checkResponse() method (after a user gets back to the website, the data should be checked against fp_hash and action)
+  // And check the response - see docs on euplatesc.ro
 
   /**
    * Get status of a transaction
@@ -224,29 +224,40 @@ export class EuPlatesc {
   };
 
   /**
-   * Capture or reversal a transaction
+   * Capture a transaction
    *
    * @since   1.0.0
-   * @param   {string}  epid        The EPID of the transaction.
-   * @param   {boolean} isReversal  Optional. Whether it's a reversal or capture. Default: false
-   * @returns {Promise}             Either { success: "1" } for success or { error: string } for error.
+   * @param   {string}  epid  The EPID of the transaction.
+   * @returns {Promise}       Either { success: "1" } for success or { error: string } for error.
    */
-  public captureReversal = async (
-    epid: string,
-    isReversal: boolean = false
-  ): Promise<{ success: string } | { error: string }> => {
+  public capture = async (epid: string): Promise<{ success: string } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use the "capture()" method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
       );
     }
 
-    const payload: Payload = {
-      method: isReversal ? Methods.REVERSAL : Methods.CAPTURE,
-      ukey: this.userKey,
-      epid
-    };
+    const payload: Payload = { method: Methods.CAPTURE, ukey: this.userKey, epid };
+    const useSecretKey = false;
 
+    return await this.genericRequest<Payload, { success: string } | { error: string }>(payload, useSecretKey);
+  };
+
+  /**
+   * Reversal a transaction
+   *
+   * @since   1.0.0
+   * @param   {string}  epid  The EPID of the transaction.
+   * @returns {Promise}       Either { success: "1" } for success or { error: string } for error.
+   */
+  public reversal = async (epid: string): Promise<{ success: string } | { error: string }> => {
+    if (!this.userKey || !this.userApi) {
+      throw new Error(
+        'To use the "reversal()" method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+      );
+    }
+
+    const payload: Payload = { method: Methods.REVERSAL, ukey: this.userKey, epid };
     const useSecretKey = false;
 
     return await this.genericRequest<Payload, { success: string } | { error: string }>(payload, useSecretKey);
@@ -286,7 +297,7 @@ export class EuPlatesc {
   };
 
   /**
-   * (Partial) Refund of a transaction
+   * (Partial) Refund a transaction
    *
    * @since   1.0.0
    * @param   {string}  epid    The EPID of the transaction.
@@ -322,7 +333,7 @@ export class EuPlatesc {
   };
 
   /**
-   * Cancel recurring transaction
+   * Cancel a recurring transaction
    *
    * Watch out: if you just test this method with a failed EPID, a valid recurring payment will be canceled :(
    * It might be an EuPlatesc bug.
@@ -388,7 +399,7 @@ export class EuPlatesc {
   };
 
   /**
-   * Get invoice transaction list
+   * Get invoice list
    *
    * If `from` and `to` are sent empty will search invoices in last 3 months.
    * Returns max 100 records.
@@ -440,12 +451,7 @@ export class EuPlatesc {
       );
     }
 
-    const payload: Payload = {
-      method: Methods.INVOICE,
-      ukey: this.userKey,
-      invoice
-    };
-
+    const payload: Payload = { method: Methods.INVOICE, ukey: this.userKey, invoice };
     const useSecretKey = false;
 
     return await this.genericRequest<Payload, { success: InvoiceTransaction[] } | { error: string }>(
@@ -506,12 +512,7 @@ export class EuPlatesc {
       );
     }
 
-    const payload: Payload = {
-      method: Methods.CARDART,
-      ukey: this.userKey,
-      ep_id: epid
-    };
-
+    const payload: Payload = { method: Methods.CARDART, ukey: this.userKey, ep_id: epid };
     const useSecretKey = false;
 
     return await this.genericRequest<Payload, { success: CardArt } | { error: string; ecode: string }>(
@@ -573,10 +574,7 @@ export class EuPlatesc {
    * @returns {Promise}     Merchant data or error.
    */
   public checkMid = async (mid?: string): Promise<Merchant | { error: string }> => {
-    const payload: Payload = {
-      method: Methods.CHECK_MID,
-      mid: mid ?? this.merchantId
-    };
+    const payload: Payload = { method: Methods.CHECK_MID, mid: mid ?? this.merchantId };
 
     return await this.genericRequest<Payload, Merchant | { error: string }>(payload);
   };
