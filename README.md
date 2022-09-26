@@ -9,12 +9,13 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 1. [Table of contents](#contents)
 2. [Getting started](#getting-started)
 3. [Installation](#installation)
-4. [Usage](#usage)
+4. [Usage](#usage) & test cards?
 5. [API](#api)
    - [Constructor](#api-constructor)
    - [paymentUrl](#api-paymentUrl)
    - [getStatus](#api-getStatus)
-   - [captureReversal](#api-captureReversal)
+   - [capture](#api-capture)
+   - [reversal](#api-reversal)
    - [partialCapture](#api-partialCapture)
    - [refund](#api-refund)
    - [cancelRecurring](#api-cancelRecurring)
@@ -198,9 +199,375 @@ const url = epClient.getStatus(param);
 
 `getStatus` method param object looks like below:
 
-| Field     | Type   | Description                          |
-| --------- | ------ | ------------------------------------ |
-| epid      | string | The ID of the transaction.           |
-| invoiceId | string | The ID of the transaction's invoice. |
+| Field           | Type   | Description                          |
+| --------------- | ------ | ------------------------------------ |
+| param.epid      | string | The ID of the transaction.           |
+| param.invoiceId | string | The ID of the transaction's invoice. |
 
 You have to pass either `epid` of `invoiceId` as param object to get the status. If both are passed, the `epid` field has priority.
+
+### <a name="api-capture"></a>capture
+
+Capture a transaction.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+console.log(await epClient.capture(epid));
+// { success: "1" } or { error: "Error message" }
+```
+
+| Field | Type   | Description                |
+| ----- | ------ | -------------------------- |
+| epid  | string | The ID of the transaction. |
+
+### <a name="api-reversal"></a>reversal
+
+Reversal a transaction.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+console.log(await epClient.reversal(epid));
+// { success: "1" } or { error: "Error message" }
+```
+
+| Field | Type   | Description                |
+| ----- | ------ | -------------------------- |
+| epid  | string | The ID of the transaction. |
+
+### <a name="api-partialCapture"></a>partialCapture
+
+Partial capture a transaction.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const amount = 123.78;
+
+console.log(await epClient.partialCapture(epid, amount));
+// { success: "1" } or { error: "Error message" }
+```
+
+| Field  | Type   | Description                        |
+| ------ | ------ | ---------------------------------- |
+| epid   | string | The ID of the transaction.         |
+| amount | number | The amount to be partial captured. |
+
+### <a name="api-refund"></a>refund
+
+(Partial) Refund a transaction.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const amount = 123.78;
+const reasom = 'Refund reason.';
+
+console.log(await epClient.refund(epid, amount, reason));
+// { success: "1" } or { error: "Error message" }
+```
+
+| Field  | Type   | Description                                                                            |
+| ------ | ------ | -------------------------------------------------------------------------------------- |
+| epid   | string | The ID of the transaction.                                                             |
+| amount | number | The amount to be refunded. It can be smaller than the total amount of the transaction. |
+| reason | string | Optional. The reason why the transaction is refunded.                                  |
+
+### <a name="api-cancelRecurring"></a>cancelRecurring
+
+Cancel a recurring transaction.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const reasom = 'The user asked to cancel this recurrent transaction.';
+
+console.log(await epClient.cancelRecurring(epid, reason));
+// { success: "<base EPID>" } or { error: "Error message" }
+```
+
+| Field  | Type   | Description                                                           |
+| ------ | ------ | --------------------------------------------------------------------- |
+| epid   | string | The ID of the transaction.                                            |
+| reason | string | Optional. The reason why the recurring transaction is to be canceled. |
+
+### <a name="api-updateInvoiceId"></a>updateInvoiceId
+
+Update the invoice ID of a transaction.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const newInvoiceId = 'INV-0075';
+
+console.log(await epClient.updateInvoiceId(epid, newInvoiceId));
+// { success: "1" } or { error: "Error message" }
+```
+
+| Field        | Type   | Description                                                  |
+| ------------ | ------ | ------------------------------------------------------------ |
+| epid         | string | The ID of the transaction which invoice ID is to be updated. |
+| newInvoiceId | string | The new invoice ID which is to be updated.                   |
+
+### <a name="api-getInvoiceList"></a>getInvoiceList
+
+Get invoice list.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const from = new Date('2022-08-24');
+const to = new Date('2022-09-14');
+
+console.log(await epClient.getInvoiceList({ from, to }));
+// { success: [{
+//   invoice_number: string;
+//   invoice_date: string;
+//   invoice_amount_novat: string;
+//   invoice_amount_vat: string;
+//   invoice_currency: 'RON' | 'EUR' | 'USD';
+//   transactions_number: string;
+//   transactions_amount: string;
+//   transferred_amount: string;
+//  }]
+// }
+```
+
+| Field | Type | Description                                               |
+| ----- | ---- | --------------------------------------------------------- |
+| from  | Date | Optional. Date the filter starts to search invoices from. |
+| to    | Date | Optional. Date the filter ends to search invoices to.     |
+
+If `from` and `to` are sent empty will search invoices in last 3 months.
+Returns max 100 records.
+
+### <a name="api-getInvoiceTransactions"></a>getInvoiceTransactions
+
+Get invoice transaction list.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const invoice = 'FPSxxxxxxxx';
+
+console.log(await epClient.getInvoiceTransactions(invoice));
+```
+
+| Field   | Type   | Description                |
+| ------- | ------ | -------------------------- |
+| invoice | string | Settlement invoice number. |
+
+Return type:
+
+```js
+// { success: InvoiceTransaction[] }
+{
+  success: [{
+    mid: string;
+    invoice_id: string;
+    epid: string;
+    rrn: string;
+    amount: string;
+    commission: string;
+    installments: string;
+    type: 'capture' | 'refund' | 'chargeback';
+  }]
+}
+```
+
+### <a name="api-getCapturedTotal"></a>getCapturedTotal
+
+Get captured total.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const params = {
+  mids: '4484xxxxxxxxx,4484xxxxxxxxx', // or just "4484xxxxxxxxx"
+  from: new Date('2022-02-13'),
+  to: new Date('2022-03-22')
+};
+
+console.log(await epClient.getCapturedTotal(params));
+```
+
+| Field | Type   | Description                                                                                                     |
+| ----- | ------ | --------------------------------------------------------------------------------------------------------------- |
+| mids  | string | Optional. Merchant IDs sepparated by comma. If empty, it will setup the merchant ID from client initialization. |
+| from  | Date   | Optional. Date the filter starts to search totals from.                                                         |
+| to    | Date   | Optional. Date the filter ends to search totals to.                                                             |
+
+If `from` and `to` are sent empty will search in the last month.
+
+Return type:
+
+```js
+// { success: CapturedTotal }
+{
+  success: {
+    EUR?: string;
+    GBP?: string;
+    RON?: string;
+    USD?: string;
+  }
+}
+```
+
+### <a name="api-getCardArt"></a>getCardArt
+
+Get card art data.
+
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+
+```js
+import epClient from './lib/epClient';
+
+const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+
+console.log(await epClient.getCardArt(epid));
+```
+
+| Field | Type   | Description                  |
+| ----- | ------ | ---------------------------- |
+| epid  | string | The EPID of the transaction. |
+
+Return type:
+
+```js
+// { success: CardArt } | { error: string; ecode: string }
+{
+  success: {
+    bin: string;
+    last4: string;
+    exp: string;
+    cardart: string;
+  }
+}
+```
+
+### <a name="api-getSavedCards"></a>getSavedCards
+
+Get saved cards of a customer.
+
+```js
+import epClient from './lib/epClient';
+
+const clientId = '1';
+const mid = '4484xxxxxxxxx';
+
+console.log(await epClient.getSavedCards(clientId, mid));
+```
+
+| Field    | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| clientId | string | The ID of the client.                                                                      |
+| mid      | string | Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization. |
+
+Return type:
+
+```js
+// { success: SavedCard[] } | { error: string; ecode: string }
+{
+  success: [{
+    id: string;
+    bin: string;
+    last4: string;
+    mask: string;
+    exp: string;
+    cardart: string;
+  }]
+}
+```
+
+### <a name="api-removeCard"></a>removeCard
+
+Get saved cards of a customer.
+
+```js
+import epClient from './lib/epClient';
+
+const clientId = '1';
+const cardId = '234';
+const mid = '4484xxxxxxxxx';
+
+console.log(await epClient.removeCard(clientId, cardId, mid));
+
+// { success: "1" } or { error, ecode }
+```
+
+Parameter list:
+
+| Field    | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| clientId | string | The ID of the client.                                                                      |
+| cardId   | string | The ID of the card.                                                                        |
+| mid      | string | Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization. |
+
+### <a name="api-checkMid"></a>checkMid
+
+Get saved cards of a customer.
+
+```js
+import epClient from './lib/epClient';
+
+const mid = '4484xxxxxxxxx';
+
+console.log(await epClient.checkMid(clientId, cardId, mid));
+
+// { success: "1" } or { error, ecode }
+```
+
+Parameter list:
+
+| Field | Type   | Description                                                                                |
+| ----- | ------ | ------------------------------------------------------------------------------------------ |
+| mid   | string | Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization. |
+
+Return type:
+
+```js
+// { success: Merchant } | { error: string }
+{
+  success: {
+    name: string;
+    url: string;
+    cui: string;
+    j: string;
+    status: string;
+    recuring: string;
+    tpl: string;
+    rate_mode: string;
+    rate_apb: string;
+    rate_btrl: string;
+    rate_brdf: string;
+    rate_fbr: string;
+    rate_gbr: string;
+    rate_rzb: string;
+  }
+}
+```
