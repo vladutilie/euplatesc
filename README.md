@@ -13,6 +13,7 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 5. [API](#api)
    - [Constructor](#api-constructor)
    - [paymentUrl](#api-paymentUrl)
+   - [checkResponse](#api-checkResponse)
    - [getStatus](#api-getStatus)
    - [capture](#api-capture)
    - [reversal](#api-reversal)
@@ -200,6 +201,73 @@ Type:
 {
   paymentUrl: string;
 }
+```
+
+</details>
+
+## <a name="api-checkResponse"></a>checkResponse [⤴](#contents)
+
+Check the backwards response received by the EuPlătesc POST request.
+
+This logic should be used as a callback in an API endpoint which processes a POST request from EuPlătesc server.
+
+```ts
+import epClient from './lib/epClient';
+
+// The data below should be passed from a POST request from EuPlătesc server after a payment is made.
+const params = {
+  amount: '',
+  currency: '',
+  invoiceId: '',
+  epId: '',
+  merchantId: '',
+  action: '',
+  message: '',
+  approval: '',
+  timestamp: '',
+  nonce: '',
+  fpHash: ''
+};
+
+const state = epClient.checkResponse(params);
+```
+
+<details>
+  <summary>Parameter list</summary>
+
+| Field      | Type                    | Description                                       |
+| ---------- | ----------------------- | ------------------------------------------------- |
+| amount     | string                  | The amount of the made transaction.               |
+| currency   | 'RON' \| 'USD' \| 'EUR' | The currency of the made transaction.             |
+| invoiceId  | string                  | The invoice ID of the made transaction.           |
+| epId       | string                  | The ep ID of the made transaction.                |
+| merchantId | string                  | The merchant ID for the transaction was made for. |
+| action     | string                  | The action of the made transaction.               |
+| message    | string                  | A message of the made transaction.                |
+| approval   | string                  | Approval value of the made transaction.           |
+| timestamp  | string                  | Timestamp of the made transaction.                |
+| nonce      | string                  | Nonce of the made transaction.                    |
+| fpHash     | string                  | The hash of the made transaction.                 |
+
+</details>
+
+<details>
+  <summary>Return</summary>
+
+Example:
+
+```ts
+// ResponseResult
+{ success: true, response: 'complete' }
+```
+
+Type:
+
+```ts
+type ResponseResult = {
+  success: boolean;
+  response: 'complete' | 'failed' | 'invalid';
+};
 ```
 
 </details>
