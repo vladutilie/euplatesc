@@ -80,7 +80,7 @@ epClient.checkMid().then((midInfo) => console.log(midInfo));
 
 # <a name="api"></a>API
 
-## <a name="api-constructor"></a>Constructor
+## <a name="api-constructor"></a>Constructor [⤴](#contents)
 
 ```ts
 import { EuPlatesc } from 'euplatesc';
@@ -113,7 +113,7 @@ The user key (UKEY) and the user API (UAPI) are optional for some methods, but r
 
 </details>
 
-## <a name="api-paymentUrl"></a>paymentUrl
+## <a name="api-paymentUrl"></a>paymentUrl [⤴](#contents)
 
 It generates the payment gateway URL to euplatesc.ro.
 
@@ -205,7 +205,7 @@ Type:
 
 </details>
 
-## <a name="api-getStatus"></a>getStatus
+## <a name="api-getStatus"></a>getStatus [⤴](#contents)
 
 Get status of a transaction.
 
@@ -251,7 +251,7 @@ Type:
 
 </details>
 
-## <a name="api-capture"></a>capture
+## <a name="api-capture"></a>capture [⤴](#contents)
 
 Capture a transaction.
 
@@ -292,7 +292,7 @@ Type:
 
 </details>
 
-## <a name="api-reversal"></a>reversal
+## <a name="api-reversal"></a>reversal [⤴](#contents)
 
 Reversal a transaction.
 
@@ -333,7 +333,7 @@ Type:
 
 </details>
 
-## <a name="api-partialCapture"></a>partialCapture
+## <a name="api-partialCapture"></a>partialCapture [⤴](#contents)
 
 Partial capture a transaction.
 
@@ -377,7 +377,7 @@ Type:
 
 </details>
 
-## <a name="api-refund"></a>refund
+## <a name="api-refund"></a>refund [⤴](#contents)
 
 (Partial) Refund a transaction.
 
@@ -423,7 +423,7 @@ Type:
 
 </details>
 
-## <a name="api-cancelRecurring"></a>cancelRecurring
+## <a name="api-cancelRecurring"></a>cancelRecurring [⤴](#contents)
 
 Cancel a recurring transaction.
 
@@ -467,7 +467,7 @@ Type:
 
 </details>
 
-## <a name="api-updateInvoiceId"></a>updateInvoiceId
+## <a name="api-updateInvoiceId"></a>updateInvoiceId [⤴](#contents)
 
 Update the invoice ID of a transaction.
 
@@ -511,7 +511,7 @@ Type:
 
 </details>
 
-## <a name="api-getInvoiceList"></a>getInvoiceList
+## <a name="api-getInvoiceList"></a>getInvoiceList [⤴](#contents)
 
 Get invoice list.
 
@@ -579,7 +579,7 @@ type Invoice = {
 
 </details>
 
-## <a name="api-getInvoiceTransactions"></a>getInvoiceTransactions
+## <a name="api-getInvoiceTransactions"></a>getInvoiceTransactions [⤴](#contents)
 
 Get invoice transaction list.
 
@@ -640,7 +640,7 @@ type InvoiceTransaction = {
 
 </details>
 
-## <a name="api-getCapturedTotal"></a>getCapturedTotal
+## <a name="api-getCapturedTotal"></a>getCapturedTotal [⤴](#contents)
 
 Get captured total.
 
@@ -701,7 +701,7 @@ type CapturedTotal = {
 
 </details>
 
-## <a name="api-getCardArt"></a>getCardArt
+## <a name="api-getCardArt"></a>getCardArt [⤴](#contents)
 
 Get card art data.
 
@@ -754,7 +754,7 @@ type CardArt = {
 
 </details>
 
-## <a name="api-getSavedCards"></a>getSavedCards
+## <a name="api-getSavedCards"></a>getSavedCards [⤴](#contents)
 
 Get saved cards of a customer.
 
@@ -814,7 +814,7 @@ type SavedCard = {
 
 </details>
 
-## <a name="api-removeCard"></a>removeCard
+## <a name="api-removeCard"></a>removeCard [⤴](#contents)
 
 Get saved cards of a customer.
 
@@ -858,7 +858,7 @@ Type:
 
 </details>
 
-## <a name="api-checkMid"></a>checkMid
+## <a name="api-checkMid"></a>checkMid [⤴](#contents)
 
 Get saved cards of a customer.
 
