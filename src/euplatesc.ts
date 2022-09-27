@@ -204,7 +204,7 @@ export class EuPlatesc {
    * @since   1.0.0
    * @param   {string}  params.epid      The EPID of the transaction.
    * @param   {string}  params.invoiceId The EPID of the transaction.
-   * @returns {Promise}                  Either {success: string} for success or { error, ecode } for error.
+   * @returns {Promise}                  Either { success: string } for success or { error, ecode } for error.
    */
   public getStatus = async (params: {
     epid?: string;
@@ -228,7 +228,7 @@ export class EuPlatesc {
    *
    * @since   1.0.0
    * @param   {string}  epid  The EPID of the transaction.
-   * @returns {Promise}       Either { success: "1" } for success or { error: string } for error.
+   * @returns {Promise}       Either { success: '1' } for success or { error: string } for error.
    */
   public capture = async (epid: string): Promise<{ success: string } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
@@ -248,7 +248,7 @@ export class EuPlatesc {
    *
    * @since   1.0.0
    * @param   {string}  epid  The EPID of the transaction.
-   * @returns {Promise}       Either { success: "1" } for success or { error: string } for error.
+   * @returns {Promise}       Either { success: '1' } for success or { error: string } for error.
    */
   public reversal = async (epid: string): Promise<{ success: string } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
@@ -269,7 +269,7 @@ export class EuPlatesc {
    * @since   1.0.0
    * @param   {string}  epid    The EPID of the transaction.
    * @param   {number}  amount  Amount to be captured.
-   * @returns {Promise}         Either { success: "1" } for success or { error?: string; message?: string; ecode: string } for error.
+   * @returns {Promise}         Either { success: '1' } for success or { error?: string; message?: string; ecode: string } for error.
    */
   public partialCapture = async (
     epid: string,
@@ -303,7 +303,7 @@ export class EuPlatesc {
    * @param   {string}  epid    The EPID of the transaction.
    * @param   {string}  amount  Amount to be captured.
    * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
-   * @returns {Promise}         Either { success: "1" } for success or { error?: string; message?: string; ecode: string } for error.
+   * @returns {Promise}         Either { success: '1' } for success or { error?: string; message?: string; ecode: string } for error.
    */
   public refund = async (
     epid: string,
@@ -374,7 +374,7 @@ export class EuPlatesc {
    * @since   1.0.0
    * @param   {string}  epid      The EPID of the transaction.
    * @param   {string}  invoiceId The invoice ID which will be updated the transaction with.
-   * @returns {Promise}           Either { success: "1" } for success or { error } for error.
+   * @returns {Promise}           Either { success: '1' } for success or { error } for error.
    */
   public updateInvoiceId = async (
     epid: string,
@@ -549,7 +549,7 @@ export class EuPlatesc {
    * @param   {string}  clientId  The ID of the client.
    * @param   {string}  cardId    The ID of the card.
    * @param   {string}  mid       Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
-   * @returns {Promise}           Either { success: "1" } for success or { error, ecode } for error.
+   * @returns {Promise}           Either { success: '1' } for success or { error, ecode } for error.
    */
   public removeCard = async (
     clientId: string,
