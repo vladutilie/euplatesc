@@ -29,8 +29,7 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
    - [checkMid](#api-checkMid)
 6. [Test cards](#test-cards)
 7. [Built with](#built-with)
-8. [Authors?](#authors)
-9. [License](#license)
+8. [License](#license)
 
 # <a name="getting-started"></a>Getting started [⤴](#contents)
 
@@ -75,7 +74,7 @@ import epClient from './lib/epClient';
 epClient.checkMid().then((midInfo) => console.log(midInfo));
 
 // Also it can be used with async-await:
-// console.log(await epClient.checkMid())
+// await epClient.checkMid()
 ```
 
 # <a name="api"></a>API [⤴](#contents)
@@ -950,3 +949,7 @@ type Merchant = {
 
 - [axios](https://www.npmjs.com/package/axios)
 - [Form-Data](https://www.npmjs.com/package/form-data)
+
+# <a name="license"></a>License [⤴](#contents)
+
+[MIT License](https://github.com/vladutilie/euplatesc/blob/main/LICENSE)
