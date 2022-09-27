@@ -9,7 +9,7 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 1. [Table of contents](#contents)
 2. [Getting started](#getting-started)
 3. [Installation](#installation)
-4. [Usage](#usage) & test cards?
+4. [Usage](#usage)
 5. [API](#api)
    - [Constructor](#api-constructor)
    - [paymentUrl](#api-paymentUrl)
@@ -32,13 +32,13 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 8. [Authors?](#authors)
 9. [License](#license)
 
-# <a name="getting-started"></a>Getting started
+# <a name="getting-started"></a>Getting started [⤴](#contents)
 
 This package is the result of my passion and openness to open-source software. Also many times I had to implement this service in my projects and almost every time I had to deal with a headache due to the poor documentation and the non-standard "REST API" provided by EuPlătesc.
 
 This package covers all the actions provided in the EuPlătesc documentation. It can be used either as CommonJS or ES module.
 
-# <a name="installation"></a>Installation
+# <a name="installation"></a>Installation [⤴](#contents)
 
 Using npm:
 
@@ -52,7 +52,7 @@ Using yarn:
 $ yarn add euplatesc
 ```
 
-# <a name="usage"></a>Usage
+# <a name="usage"></a>Usage [⤴](#contents)
 
 Create a client file and instantiate the EuPlătesc class:
 
@@ -78,7 +78,7 @@ epClient.checkMid().then((midInfo) => console.log(midInfo));
 // console.log(await epClient.checkMid())
 ```
 
-# <a name="api"></a>API
+# <a name="api"></a>API [⤴](#contents)
 
 ## <a name="api-constructor"></a>Constructor [⤴](#contents)
 
