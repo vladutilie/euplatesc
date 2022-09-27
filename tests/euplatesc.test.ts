@@ -331,7 +331,7 @@ describe('euplatesc unit tests', (): void => {
     });
   });
 
-  describe('captureReversal()', (): void => {
+  describe('capture()', (): void => {
     test('throw exception for no needed params', (): void => {
       let euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
@@ -341,7 +341,22 @@ describe('euplatesc unit tests', (): void => {
       euplatescClient = new EuPlatesc(euplatescConfig);
 
       expect(async () => {
-        await euplatescClient.captureReversal('1');
+        await euplatescClient.capture('1');
+      }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('reversal()', (): void => {
+    test('throw exception for no needed params', (): void => {
+      let euplatescConfig: Config = {
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      };
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      expect(async () => {
+        await euplatescClient.reversal('1');
       }).rejects.toThrow(Error);
     });
   });
