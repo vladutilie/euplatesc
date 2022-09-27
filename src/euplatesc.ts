@@ -214,6 +214,9 @@ export class EuPlatesc {
    * @param {string}   param.nonce      Nonce of the made transaction.
    * @param {string}   param.fpHash     The hash of the made transaction.
    * @returns { ResponseResult}         The response depending on the verifications.
+   *
+   * @todo Additional response fields should be added in the fp hash computation after nonce field.
+   * @todo Create test case for this method.
    */
   public checkResponse({
     amount,
