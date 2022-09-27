@@ -13,9 +13,11 @@ import {
   Merchant,
   Methods,
   Order,
+  Response,
+  ResponseResult,
   SavedCard
 } from './types';
-import { Base, BaseHmac, Payload } from './types/Hmac.type';
+import { Base, BaseHmac, Currency, Payload, ResponseHmac } from './types/Hmac.type';
 
 export class EuPlatesc {
   private _merchantId: string;
@@ -195,8 +197,62 @@ export class EuPlatesc {
     return { paymentUrl: `${this.gatewayUrl}?${params}` };
   };
 
-  // TODO: Create checkResponse() method (after a user gets back to the website, the data should be checked against fp_hash and action)
-  // And check the response - see docs on euplatesc.ro
+  /**
+   * Check response after the user make the payment and return to the website
+   *
+   * @since 1.0.0
+   * @param {Response} param
+   * @param {string}   param.amount     The amount of the made transaction.
+   * @param {Currency} param.currency   The currency of the made transaction.
+   * @param {string}   param.invoiceId  The invoice ID of the made transaction.
+   * @param {string}   param.epId       The ep ID of the made transaction.
+   * @param {string}   param.merchantId The merchant ID for the transaction was made for.
+   * @param {string}   param.action     The action of the made transaction.
+   * @param {string}   param.message    A message of the made transaction.
+   * @param {string}   param.approval   Approval value of the made transaction.
+   * @param {string}   param.timestamp  Timestamp of the made transaction.
+   * @param {string}   param.nonce      Nonce of the made transaction.
+   * @param {string}   param.fpHash     The hash of the made transaction.
+   * @returns { ResponseResult}         The response depending on the verifications.
+   */
+  public checkResponse({
+    amount,
+    currency,
+    invoiceId,
+    epId,
+    merchantId,
+    action,
+    message,
+    approval,
+    timestamp,
+    nonce,
+    fpHash
+  }: Response): ResponseResult {
+    const data: ResponseHmac = {
+      amount,
+      curr: currency as Currency,
+      invoice_id: invoiceId,
+      ep_id: epId,
+      merch_id: merchantId,
+      action,
+      message,
+      approval,
+      timestamp,
+      nonce
+    };
+
+    const hmacx = this.computeHmac<ResponseHmac>(data);
+
+    if (fpHash === hmacx) {
+      if ('0' === action) {
+        return { success: true, response: 'complete' };
+      } else {
+        return { success: false, response: 'failed' };
+      }
+    } else {
+      return { success: false, response: 'invalid' };
+    }
+  }
 
   /**
    * Get status of a transaction
