@@ -18,7 +18,7 @@ export type BaseHmac = {
   curr: Currency;
   invoice_id: string;
   order_desc: string;
-  merch_id: string;
+  merch_id: string; // action message approval
   timestamp: string;
   nonce: string;
   recurent_freq?: string;
@@ -43,3 +43,10 @@ export type Payload = Partial<{
   c2p_id: string;
   c2p_cid: string;
 }>;
+
+export type ResponseHmac = Omit<BaseHmac, 'order_desc'> & {
+  ep_id: string;
+  action: string;
+  message: string;
+  approval: string;
+};
