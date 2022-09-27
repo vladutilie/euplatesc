@@ -27,7 +27,7 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
    - [getSavedCards](#api-getSavedCards)
    - [removeCard](#api-removeCard)
    - [checkMid](#api-checkMid)
-6. [Credits](#credits)
+6. [Test cards](#test-cards)
 7. [Built with](#built-with)
 8. [Authors?](#authors)
 9. [License](#license)
@@ -928,3 +928,20 @@ type Merchant = {
 ```
 
 </details>
+
+# <a name="test-cards"></a>Test cards [⤴](#contents)
+
+| Card number      | Expire date | CVC | Name | Result                |
+| ---------------- | ----------- | --- | ---- | --------------------- |
+| 4111111111111111 | 24/01       | 123 | Test | Authentication failed |
+| 4444333322221111 | 24/01       | 123 | Test | Not sufficient funds  |
+| 4000020000000000 | 24/01       | 123 | Test | Transaction declined  |
+| 4400000000000008 | 24/01       | 123 | Test | Expired card          |
+| 4607000000000009 | 24/01       | 123 | Test | Invalid response      |
+| 4000640000000005 | 24/01       | 123 | Test | Approved              |
+| 5454545454545454 | 24/01       | 123 | Test | Authentication failed |
+| 5555555555554444 | 24/01       | 123 | Test | Not sufficient funds  |
+| 2222400010000008 | 24/01       | 123 | Test | Transaction declined  |
+| 2222400030000004 | 24/01       | 123 | Test | Expired card          |
+| 5100060000000002 | 24/01       | 123 | Test | Invalid response      |
+| 5500000000000004 | 24/01       | 123 | Test | Approved              |
