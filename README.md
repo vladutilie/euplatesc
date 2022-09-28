@@ -4,41 +4,41 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 
 **IMPORTANT**: For using this package, you have to ask and apply for an account on [EuPlătesc](https://euplatesc.ro) website. After you will sign a contract with EuPlătesc, you will receive credentials for accessing the API.
 
-# <a name="contents"></a>Table of Contents
+# Table of Contents
 
-1. [Table of contents](#contents)
-2. [Getting started](#getting-started)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [API](#api)
-   - [Constructor](#api-constructor)
-   - [paymentUrl](#api-paymentUrl)
-   - [checkResponse](#api-checkResponse)
-   - [getStatus](#api-getStatus)
-   - [capture](#api-capture)
-   - [reversal](#api-reversal)
-   - [partialCapture](#api-partialCapture)
-   - [refund](#api-refund)
-   - [cancelRecurring](#api-cancelRecurring)
-   - [updateInvoiceId](#api-updateInvoiceId)
-   - [getInvoiceList](#api-getInvoiceList)
-   - [getInvoiceTransactions](#api-getInvoiceTransactions)
-   - [getCapturedTotal](#api-getCapturedTotal)
-   - [getCardArt](#api-getCardArt)
-   - [getSavedCards](#api-getSavedCards)
-   - [removeCard](#api-removeCard)
-   - [checkMid](#api-checkMid)
-6. [Test cards](#test-cards)
-7. [Built with](#built-with)
-8. [License](#license)
+1. [Table of contents](#table-of-contents)
+2. [Getting started](#getting-started-⤴)
+3. [Installation](#installation-⤴)
+4. [Usage](#usage-⤴)
+5. [API](#api-⤴)
+   - [Constructor](#constructor-⤴)
+   - [paymentUrl](#paymenturl-⤴)
+   - [checkResponse](#checkresponse-⤴)
+   - [getStatus](#getstatus-⤴)
+   - [capture](#capture-⤴)
+   - [reversal](#reversal-⤴)
+   - [partialCapture](#partialcapture-⤴)
+   - [refund](#refund-⤴)
+   - [cancelRecurring](#cancelrecurring-⤴)
+   - [updateInvoiceId](#updateinvoiceid-⤴)
+   - [getInvoiceList](#getinvoicelist-⤴)
+   - [getInvoiceTransactions](#getinvoicetransactions-⤴)
+   - [getCapturedTotal](#getcapturedtotal-⤴)
+   - [getCardArt](#getcardart-⤴)
+   - [getSavedCards](#getsavedcards-⤴)
+   - [removeCard](#removecard-⤴)
+   - [checkMid](#checkmid-⤴)
+6. [Test cards](#test-cards-⤴)
+7. [Built with](#built-with-⤴)
+8. [License](#license-⤴)
 
-# <a name="getting-started"></a>Getting started [⤴](#contents)
+# Getting started [⤴](#table-of-contents)
 
 This package is the result of my passion and openness to open-source software. Also many times I had to implement this service in my projects and almost every time I had to deal with a headache due to the poor documentation and the non-standard "REST API" provided by EuPlătesc.
 
 This package covers all the actions provided in the EuPlătesc documentation. It can be used either as CommonJS or ES module.
 
-# <a name="installation"></a>Installation [⤴](#contents)
+# Installation [⤴](#table-of-contents)
 
 Using npm:
 
@@ -52,7 +52,7 @@ Using yarn:
 $ yarn add euplatesc
 ```
 
-# <a name="usage"></a>Usage [⤴](#contents)
+# Usage [⤴](#table-of-contents)
 
 Create a client file and instantiate the EuPlătesc class:
 
@@ -78,9 +78,9 @@ epClient.checkMid().then((midInfo) => console.log(midInfo));
 // await epClient.checkMid()
 ```
 
-# <a name="api"></a>API [⤴](#contents)
+# API [⤴](#table-of-contents)
 
-## <a name="api-constructor"></a>Constructor [⤴](#contents)
+## Constructor [⤴](#table-of-contents)
 
 ```ts
 import { EuPlatesc } from 'euplatesc';
@@ -113,7 +113,7 @@ The user key (UKEY) and the user API (UAPI) are optional for some methods, but r
 
 </details>
 
-## <a name="api-paymentUrl"></a>paymentUrl [⤴](#contents)
+## paymentUrl [⤴](#table-of-contents)
 
 It generates the payment gateway URL to euplatesc.ro.
 
@@ -205,7 +205,7 @@ Type:
 
 </details>
 
-## <a name="api-checkResponse"></a>checkResponse [⤴](#contents)
+## checkResponse [⤴](#table-of-contents)
 
 Check the backwards response received by the EuPlătesc POST request.
 
@@ -272,7 +272,7 @@ type ResponseResult = {
 
 </details>
 
-## <a name="api-getStatus"></a>getStatus [⤴](#contents)
+## getStatus [⤴](#table-of-contents)
 
 Get status of a transaction.
 
@@ -318,7 +318,7 @@ Type:
 
 </details>
 
-## <a name="api-capture"></a>capture [⤴](#contents)
+## capture [⤴](#table-of-contents)
 
 Capture a transaction.
 
@@ -359,7 +359,7 @@ Type:
 
 </details>
 
-## <a name="api-reversal"></a>reversal [⤴](#contents)
+## reversal [⤴](#table-of-contents)
 
 Reversal a transaction.
 
@@ -400,7 +400,7 @@ Type:
 
 </details>
 
-## <a name="api-partialCapture"></a>partialCapture [⤴](#contents)
+## partialCapture [⤴](#table-of-contents)
 
 Partial capture a transaction.
 
@@ -444,7 +444,7 @@ Type:
 
 </details>
 
-## <a name="api-refund"></a>refund [⤴](#contents)
+## refund [⤴](#table-of-contents)
 
 (Partial) Refund a transaction.
 
@@ -490,7 +490,7 @@ Type:
 
 </details>
 
-## <a name="api-cancelRecurring"></a>cancelRecurring [⤴](#contents)
+## cancelRecurring [⤴](#table-of-contents)
 
 Cancel a recurring transaction.
 
@@ -534,7 +534,7 @@ Type:
 
 </details>
 
-## <a name="api-updateInvoiceId"></a>updateInvoiceId [⤴](#contents)
+## updateInvoiceId [⤴](#table-of-contents)
 
 Update the invoice ID of a transaction.
 
@@ -578,7 +578,7 @@ Type:
 
 </details>
 
-## <a name="api-getInvoiceList"></a>getInvoiceList [⤴](#contents)
+## getInvoiceList [⤴](#table-of-contents)
 
 Get invoice list.
 
@@ -646,7 +646,7 @@ type Invoice = {
 
 </details>
 
-## <a name="api-getInvoiceTransactions"></a>getInvoiceTransactions [⤴](#contents)
+## getInvoiceTransactions [⤴](#table-of-contents)
 
 Get invoice transaction list.
 
@@ -707,7 +707,7 @@ type InvoiceTransaction = {
 
 </details>
 
-## <a name="api-getCapturedTotal"></a>getCapturedTotal [⤴](#contents)
+## getCapturedTotal [⤴](#table-of-contents)
 
 Get captured total.
 
@@ -768,7 +768,7 @@ type CapturedTotal = {
 
 </details>
 
-## <a name="api-getCardArt"></a>getCardArt [⤴](#contents)
+## getCardArt [⤴](#table-of-contents)
 
 Get card art data.
 
@@ -821,7 +821,7 @@ type CardArt = {
 
 </details>
 
-## <a name="api-getSavedCards"></a>getSavedCards [⤴](#contents)
+## getSavedCards [⤴](#table-of-contents)
 
 Get saved cards of a customer.
 
@@ -881,7 +881,7 @@ type SavedCard = {
 
 </details>
 
-## <a name="api-removeCard"></a>removeCard [⤴](#contents)
+## removeCard [⤴](#table-of-contents)
 
 Get saved cards of a customer.
 
@@ -925,7 +925,7 @@ Type:
 
 </details>
 
-## <a name="api-checkMid"></a>checkMid [⤴](#contents)
+## checkMid [⤴](#table-of-contents)
 
 Get saved cards of a customer.
 
@@ -996,7 +996,7 @@ type Merchant = {
 
 </details>
 
-# <a name="test-cards"></a>Test cards [⤴](#contents)
+# Test cards [⤴](#table-of-contents)
 
 | Card number      | Expire date | CVC | Name | Result                |
 | ---------------- | ----------- | --- | ---- | --------------------- |
@@ -1013,11 +1013,11 @@ type Merchant = {
 | 5100060000000002 | 24/01       | 123 | Test | Invalid response      |
 | 5500000000000004 | 24/01       | 123 | Test | Approved              |
 
-# <a name="built-with"></a>Built with [⤴](#contents)
+# Built with [⤴](#table-of-contents)
 
 - [axios](https://www.npmjs.com/package/axios)
 - [Form-Data](https://www.npmjs.com/package/form-data)
 
-# <a name="license"></a>License [⤴](#contents)
+# License [⤴](#table-of-contents)
 
 [MIT License](https://github.com/vladutilie/euplatesc/blob/main/LICENSE)
