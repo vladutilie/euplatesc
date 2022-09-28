@@ -659,7 +659,7 @@ export class EuPlatesc {
     const binKey = Buffer.from(secretKey, 'hex');
     const hash = crypto.createHmac('md5', binKey).update(hmac, 'utf8').digest('hex');
 
-    return hash;
+    return hash.toUpperCase();
   };
 
   /**
