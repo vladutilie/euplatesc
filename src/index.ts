@@ -1,1 +1,2 @@
-export { EuPlatesc } from './euplatesc';
+export * from './euplatesc';
+export * from './types';
