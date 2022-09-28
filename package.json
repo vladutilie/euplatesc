@@ -4,7 +4,7 @@
   "description": "The payment gateway for EuPlatesc.ro",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/types/index.d.js",
+  "types": "dist/index.d.js",
   "scripts": {
     "build": "npm run build:cjs && npm run build:esm && npm run build:types",
     "build:cjs": "node tools/cleanup cjs && tsc -p tsconfig.cjs.json",
