@@ -272,7 +272,7 @@ describe('euplatesc unit tests', (): void => {
         timestamp: '20190101000000',
         nonce: 'f7d93357a7040619bc416881c479687f'
       };
-      const hmacAssert = '7c92021205130ab01aaa014e4b47222a'; // Computed in EuPlatesc Panel.
+      const hmacAssert = '7C92021205130AB01AAA014E4B47222A'; // Computed in EuPlatesc Panel.
       expect(euplatescClient.computeHmac(hmacData)).toBe(hmacAssert);
     });
   });
