@@ -62,7 +62,7 @@ import { EuPlatesc} from 'euplatesc';
 
 export default epClient = new EuPlatesc({
     merchantId: process.env.EUPLATEC_MERCHANT_ID,
-    secretKey: merchantId: process.env.EUPLATEC_SECRET_KEY,
+    secretKey: process.env.EUPLATEC_SECRET_KEY,
 });
 ```
 
@@ -229,7 +229,7 @@ const params = {
   fpHash: ''
 };
 
-const state = epClient.checkResponse(params);
+console.log(epClient.checkResponse(params));
 ```
 
 <details>
@@ -279,12 +279,12 @@ Get status of a transaction.
 ```ts
 import epClient from './lib/epClient';
 
-const param = {
+const params = {
   epid: '15F124618DA2E299CBEFA787A09464352946F422'
   // invoiceId: 'FPS12145601'
 };
 
-const url = epClient.getStatus(params);
+console.log(await epClient.getStatus(params));
 ```
 
 <details>
@@ -313,7 +313,7 @@ Example:
 Type:
 
 ```ts
-{ success: string } | { error: string }
+{ success: string } | { error: string, ecode: string }
 ```
 
 </details>
@@ -322,7 +322,7 @@ Type:
 
 Capture a transaction.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
@@ -354,7 +354,7 @@ Example:
 Type:
 
 ```ts
-{ success: string } | { error: string }
+{ success: string } | { error: string; ecode: string }
 ```
 
 </details>
@@ -363,7 +363,7 @@ Type:
 
 Reversal a transaction.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
@@ -395,7 +395,7 @@ Example:
 Type:
 
 ```ts
-{ success: string } | { error: string }
+{ success: string } | { error: string; ecode: string }
 ```
 
 </details>
@@ -404,7 +404,7 @@ Type:
 
 Partial capture a transaction.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
@@ -439,7 +439,7 @@ Example:
 Type:
 
 ```ts
-{ success: string } | { error: string }
+{ success: string } | { error?: string; message?: string; ecode: string }
 ```
 
 </details>
@@ -448,14 +448,14 @@ Type:
 
 (Partial) Refund a transaction.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
 
 const epid = '15F124618DA2E299CBEFA787A09464352946F422';
 const amount = 123.78;
-const reasom = 'Refund reason.';
+const reason = 'Refund reason.';
 
 console.log(await epClient.refund(epid, amount, reason));
 ```
@@ -485,7 +485,7 @@ Example:
 Type:
 
 ```ts
-{ success: string } | { error: string }
+{ success: string } | { error?: string; message?: string; ecode: string }
 ```
 
 </details>
@@ -494,13 +494,13 @@ Type:
 
 Cancel a recurring transaction.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
 
 const epid = '15F124618DA2E299CBEFA787A09464352946F422';
-const reasom = 'The user asked to cancel this recurrent transaction.';
+const reason = 'The user asked to cancel this recurrent transaction.';
 
 console.log(await epClient.cancelRecurring(epid, reason));
 ```
@@ -529,7 +529,7 @@ Example:
 Type:
 
 ```ts
-{ success: string } | { error: string }
+{ success: string } | { error?: string; message?: string; ecode: string }
 ```
 
 </details>
@@ -538,7 +538,7 @@ Type:
 
 Update the invoice ID of a transaction.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
@@ -582,7 +582,7 @@ Type:
 
 Get invoice list.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
@@ -650,7 +650,7 @@ type Invoice = {
 
 Get invoice transaction list.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
@@ -711,7 +711,7 @@ type InvoiceTransaction = {
 
 Get captured total.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
@@ -772,7 +772,7 @@ type CapturedTotal = {
 
 Get card art data.
 
-**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass `userKey` and `userApi`, too.
+**IMPORTANT:** For using this method, in addition to merchant ID and secret key in the EuPlătesc client instantiation you should pass both `userKey` and `userApi`, too.
 
 ```ts
 import epClient from './lib/epClient';
@@ -934,7 +934,7 @@ import epClient from './lib/epClient';
 
 const mid = '4484xxxxxxxxx';
 
-console.log(await epClient.checkMid(clientId, cardId, mid));
+console.log(await epClient.checkMid(mid));
 
 // { success: "1" } or { error, ecode }
 ```
