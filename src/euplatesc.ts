@@ -117,7 +117,7 @@ export class EuPlatesc {
     let hmacData: BaseHmac & BaseOrder = {
       amount: this.testMode ? '1.00' : data.amount.toString(),
       curr: data.currency,
-      invoice_id: data.invoiceId,
+      invoice_id: data.invoiceId.trim(),
       order_desc: data.orderDescription,
       merch_id: this.testMode ? this.testMerchantId : this.merchantId,
       timestamp: this.prepareTS(),
