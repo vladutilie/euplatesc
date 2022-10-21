@@ -44,6 +44,10 @@ export class EuPlatesc {
    * @param {string} param.userApi    Optional. User API key. You can find it in EuPlătesc panel > Settings > User settings. Default: ''.
    */
   public constructor({ merchantId, secretKey, testMode, userKey, userApi }: Config) {
+    if (!merchantId || !secretKey) {
+      throw Error('Please instantiate the EuPlătesc client with both "merchantId" and "secretKey".')
+    }
+
     this._merchantId = merchantId;
     this._secretKey = secretKey;
     this._testMode = 'boolean' === typeof testMode ? testMode : false;
@@ -287,9 +291,9 @@ export class EuPlatesc {
    *
    * @since   1.0.0
    * @param   {string}  epid  The EPID of the transaction.
-   * @returns {Promise}       Either { success: '1' } for success or { error: string } for error.
+   * @returns {Promise}       Either { success: '1' } for success or { error: string; ecode: string } for error.
    */
-  public capture = async (epid: string): Promise<{ success: string } | { error: string }> => {
+  public capture = async (epid: string): Promise<{ success: string } | { error: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
         'To use the "capture()" method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
@@ -299,7 +303,7 @@ export class EuPlatesc {
     const payload: Payload = { method: Methods.CAPTURE, ukey: this.userKey, epid };
     const useSecretKey = false;
 
-    return await this.genericRequest<Payload, { success: string } | { error: string }>(payload, useSecretKey);
+    return await this.genericRequest<Payload, { success: string } | { error: string; ecode: string }>(payload, useSecretKey);
   };
 
   /**
@@ -307,9 +311,9 @@ export class EuPlatesc {
    *
    * @since   1.0.0
    * @param   {string}  epid  The EPID of the transaction.
-   * @returns {Promise}       Either { success: '1' } for success or { error: string } for error.
+   * @returns {Promise}       Either { success: '1' } for success or { error: string; ecode: string } for error.
    */
-  public reversal = async (epid: string): Promise<{ success: string } | { error: string }> => {
+  public reversal = async (epid: string): Promise<{ success: string } | { error: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
         'To use the "reversal()" method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
@@ -319,7 +323,7 @@ export class EuPlatesc {
     const payload: Payload = { method: Methods.REVERSAL, ukey: this.userKey, epid };
     const useSecretKey = false;
 
-    return await this.genericRequest<Payload, { success: string } | { error: string }>(payload, useSecretKey);
+    return await this.genericRequest<Payload, { success: string } | { error: string; ecode: string }>(payload, useSecretKey);
   };
 
   /**
