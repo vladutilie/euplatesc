@@ -280,7 +280,7 @@ Get status of a transaction.
 import epClient from './lib/epClient';
 
 const params = {
-  epid: '15F124618DA2E299CBEFA787A09464352946F422'
+  epId: '15F124618DA2E299CBEFA787A09464352946F422'
   // invoiceId: 'FPS12145601'
 };
 
@@ -292,10 +292,10 @@ console.log(await epClient.getStatus(params));
 
 | Field     | Type   | Description                          |
 | --------- | ------ | ------------------------------------ |
-| epid      | string | The ID of the transaction.           |
+| epId      | string | The ID of the transaction.           |
 | invoiceId | string | The ID of the transaction's invoice. |
 
-You have to pass either `epid` or `invoiceId` as param object to get the status. If both are passed, the `epid` field has priority.
+You have to pass either `epId` or `invoiceId` as param object to get the status. If both are passed, the `epId` field has priority.
 
 </details>
 
@@ -327,8 +327,8 @@ Capture a transaction.
 ```ts
 import epClient from './lib/epClient';
 
-const epid = '15F124618DA2E299CBEFA787A09464352946F422';
-console.log(await epClient.capture(epid));
+const epId = '15F124618DA2E299CBEFA787A09464352946F422';
+console.log(await epClient.capture(epId));
 ```
 
 <details>
@@ -336,7 +336,7 @@ console.log(await epClient.capture(epid));
 
 | Field | Type   | Description                |
 | ----- | ------ | -------------------------- |
-| epid  | string | The ID of the transaction. |
+| epId  | string | The ID of the transaction. |
 
 </details>
 
@@ -368,8 +368,8 @@ Reversal a transaction.
 ```ts
 import epClient from './lib/epClient';
 
-const epid = '15F124618DA2E299CBEFA787A09464352946F422';
-console.log(await epClient.reversal(epid));
+const epId = '15F124618DA2E299CBEFA787A09464352946F422';
+console.log(await epClient.reversal(epId));
 ```
 
 <details>
@@ -377,7 +377,7 @@ console.log(await epClient.reversal(epid));
 
 | Field | Type   | Description                |
 | ----- | ------ | -------------------------- |
-| epid  | string | The ID of the transaction. |
+| epId  | string | The ID of the transaction. |
 
 </details>
 
@@ -409,10 +409,10 @@ Partial capture a transaction.
 ```ts
 import epClient from './lib/epClient';
 
-const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const epId = '15F124618DA2E299CBEFA787A09464352946F422';
 const amount = 123.78;
 
-console.log(await epClient.partialCapture(epid, amount));
+console.log(await epClient.partialCapture(epId, amount));
 ```
 
 <details>
@@ -420,7 +420,7 @@ console.log(await epClient.partialCapture(epid, amount));
 
 | Field  | Type   | Description                        |
 | ------ | ------ | ---------------------------------- |
-| epid   | string | The ID of the transaction.         |
+| epId   | string | The ID of the transaction.         |
 | amount | number | The amount to be partial captured. |
 
 </details>
@@ -453,11 +453,11 @@ Type:
 ```ts
 import epClient from './lib/epClient';
 
-const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const epId = '15F124618DA2E299CBEFA787A09464352946F422';
 const amount = 123.78;
 const reason = 'Refund reason.';
 
-console.log(await epClient.refund(epid, amount, reason));
+console.log(await epClient.refund(epId, amount, reason));
 ```
 
 <details>
@@ -465,7 +465,7 @@ console.log(await epClient.refund(epid, amount, reason));
 
 | Field  | Type   | Description                                                                            |
 | ------ | ------ | -------------------------------------------------------------------------------------- |
-| epid   | string | The ID of the transaction.                                                             |
+| epId   | string | The ID of the transaction.                                                             |
 | amount | number | The amount to be refunded. It can be smaller than the total amount of the transaction. |
 | reason | string | Optional. The reason why the transaction is refunded.                                  |
 
@@ -499,10 +499,10 @@ Cancel a recurring transaction.
 ```ts
 import epClient from './lib/epClient';
 
-const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const epId = '15F124618DA2E299CBEFA787A09464352946F422';
 const reason = 'The user asked to cancel this recurrent transaction.';
 
-console.log(await epClient.cancelRecurring(epid, reason));
+console.log(await epClient.cancelRecurring(epId, reason));
 ```
 
 <details>
@@ -510,7 +510,7 @@ console.log(await epClient.cancelRecurring(epid, reason));
 
 | Field  | Type   | Description                                                           |
 | ------ | ------ | --------------------------------------------------------------------- |
-| epid   | string | The ID of the transaction.                                            |
+| epId   | string | The ID of the transaction.                                            |
 | reason | string | Optional. The reason why the recurring transaction is to be canceled. |
 
 </details>
@@ -543,10 +543,10 @@ Update the invoice ID of a transaction.
 ```ts
 import epClient from './lib/epClient';
 
-const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const epId = '15F124618DA2E299CBEFA787A09464352946F422';
 const newInvoiceId = 'INV-0075';
 
-console.log(await epClient.updateInvoiceId(epid, newInvoiceId));
+console.log(await epClient.updateInvoiceId(epId, newInvoiceId));
 ```
 
 <details>
@@ -554,7 +554,7 @@ console.log(await epClient.updateInvoiceId(epid, newInvoiceId));
 
 | Field        | Type   | Description                                                  |
 | ------------ | ------ | ------------------------------------------------------------ |
-| epid         | string | The ID of the transaction which invoice ID is to be updated. |
+| epId         | string | The ID of the transaction which invoice ID is to be updated. |
 | newInvoiceId | string | The new invoice ID which is to be updated.                   |
 
 </details>
@@ -777,9 +777,9 @@ Get card art data.
 ```ts
 import epClient from './lib/epClient';
 
-const epid = '15F124618DA2E299CBEFA787A09464352946F422';
+const epId = '15F124618DA2E299CBEFA787A09464352946F422';
 
-console.log(await epClient.getCardArt(epid));
+console.log(await epClient.getCardArt(epId));
 ```
 
 <details>
@@ -787,7 +787,7 @@ console.log(await epClient.getCardArt(epid));
 
 | Field | Type   | Description                  |
 | ----- | ------ | ---------------------------- |
-| epid  | string | The EPID of the transaction. |
+| epId  | string | The EPID of the transaction. |
 
 </details>
 

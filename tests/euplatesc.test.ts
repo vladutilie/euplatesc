@@ -215,7 +215,7 @@ describe('euplatesc unit tests', (): void => {
         rate: 'BT-10',
         filterRate: 'BK-12-34',
         channel: 'CC,OP',
-        generateEpid: '1',
+        generateEpId: '1',
         valability,
         c2pId: 'some-unique-id',
         c2pCid: 'another-unique-id',
@@ -237,7 +237,7 @@ describe('euplatesc unit tests', (): void => {
       expect(params.get('ExtraData[rate]')).toBe(data.rate);
       expect(params.get('ExtraData[filtru_rate]')).toBe(data.filterRate);
       expect(params.get('ExtraData[ep_channel]')).toBe(data.channel);
-      expect(params.get('generate_epid')).toBe(data.generateEpid);
+      expect(params.get('generate_epid')).toBe(data.generateEpId);
 
       const valabilityAssert = [
         valability.getFullYear(),
@@ -325,7 +325,7 @@ describe('euplatesc unit tests', (): void => {
         ]`
       });
 
-      await euplatescClient.getStatus({ epid: '123' });
+      await euplatescClient.getStatus({ epId: '123' });
 
       expect(mockedAxios.post).toHaveBeenCalledTimes(1);
     });

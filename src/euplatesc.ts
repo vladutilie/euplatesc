@@ -193,7 +193,7 @@ export class EuPlatesc {
     data.rate && (hmacData['ExtraData[rate]'] = data.rate);
     data.filterRate && (hmacData['ExtraData[filtru_rate]'] = data.filterRate);
     data.channel && (hmacData['ExtraData[ep_channel]'] = data.channel);
-    data.generateEpid && (hmacData.generate_epid = data.generateEpid);
+    data.generateEpId && (hmacData.generate_epid = data.generateEpId);
     data.lang && (hmacData.lang = data.lang);
 
     const params = new URLSearchParams(hmacData);
@@ -265,22 +265,22 @@ export class EuPlatesc {
    * Get status of a transaction
    *
    * @since   1.0.0
-   * @param   {string}  params.epid      The EPID of the transaction.
+   * @param   {string}  params.epId      The EPID of the transaction.
    * @param   {string}  params.invoiceId The EPID of the transaction.
    * @returns {Promise}                  Either { success: string } for success or { error, ecode } for error.
    */
   public getStatus = async (params: {
-    epid?: string;
+    epId?: string;
     invoiceId?: string;
   }): Promise<{ success: string } | { error: string; ecode: string }> => {
-    if (!params?.epid && !params?.invoiceId) {
-      throw new Error('Please pass either "epid" or "invoiceId" param to "getStatus" method.');
+    if (!params?.epId && !params?.invoiceId) {
+      throw new Error('Please pass either "epId" or "invoiceId" param to "getStatus" method.');
     }
 
     const payload: Payload = {
       method: Methods.CHECK_STATUS,
       mid: this.merchantId,
-      ...(params.epid ? { epid: params.epid } : { invoice_id: params.invoiceId })
+      ...(params.epId ? { epid: params.epId } : { invoice_id: params.invoiceId })
     };
 
     return await this.genericRequest<Payload, { success: string } | { error: string; ecode: string }>(payload);
@@ -290,17 +290,17 @@ export class EuPlatesc {
    * Capture a transaction
    *
    * @since   1.0.0
-   * @param   {string}  epid  The EPID of the transaction.
+   * @param   {string}  epId  The EPID of the transaction.
    * @returns {Promise}       Either { success: '1' } for success or { error: string; ecode: string } for error.
    */
-  public capture = async (epid: string): Promise<{ success: string } | { error: string; ecode: string }> => {
+  public capture = async (epId: string): Promise<{ success: string } | { error: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
         'To use the "capture()" method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
-    const payload: Payload = { method: Methods.CAPTURE, ukey: this.userKey, epid };
+    const payload: Payload = { method: Methods.CAPTURE, ukey: this.userKey, epid: epId };
     const useSecretKey = false;
 
     return await this.genericRequest<Payload, { success: string } | { error: string; ecode: string }>(payload, useSecretKey);
@@ -310,17 +310,17 @@ export class EuPlatesc {
    * Reversal a transaction
    *
    * @since   1.0.0
-   * @param   {string}  epid  The EPID of the transaction.
+   * @param   {string}  epId  The EPID of the transaction.
    * @returns {Promise}       Either { success: '1' } for success or { error: string; ecode: string } for error.
    */
-  public reversal = async (epid: string): Promise<{ success: string } | { error: string; ecode: string }> => {
+  public reversal = async (epId: string): Promise<{ success: string } | { error: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
         'To use the "reversal()" method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
-    const payload: Payload = { method: Methods.REVERSAL, ukey: this.userKey, epid };
+    const payload: Payload = { method: Methods.REVERSAL, ukey: this.userKey, epid: epId };
     const useSecretKey = false;
 
     return await this.genericRequest<Payload, { success: string } | { error: string; ecode: string }>(payload, useSecretKey);
@@ -330,12 +330,12 @@ export class EuPlatesc {
    * Partial capture a transaction
    *
    * @since   1.0.0
-   * @param   {string}  epid    The EPID of the transaction.
+   * @param   {string}  epId    The EPID of the transaction.
    * @param   {number}  amount  Amount to be captured.
    * @returns {Promise}         Either { success: '1' } for success or { error?: string; message?: string; ecode: string } for error.
    */
   public partialCapture = async (
-    epid: string,
+    epId: string,
     amount: number
   ): Promise<{ success: string } | { error?: string; message?: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
@@ -348,7 +348,7 @@ export class EuPlatesc {
       method: Methods.PARTIAL_CAPTURE,
       ukey: this.userKey,
       amount: amount.toFixed(2).toString(),
-      epid
+      epid: epId
     };
 
     const useSecretKey = false;
@@ -363,13 +363,13 @@ export class EuPlatesc {
    * (Partial) Refund a transaction
    *
    * @since   1.0.0
-   * @param   {string}  epid    The EPID of the transaction.
+   * @param   {string}  epId    The EPID of the transaction.
    * @param   {string}  amount  Amount to be captured.
    * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
    * @returns {Promise}         Either { success: '1' } for success or { error?: string; message?: string; ecode: string } for error.
    */
   public refund = async (
-    epid: string,
+    epId: string,
     amount: number,
     reason: string = ''
   ): Promise<{ success: string } | { error?: string; message?: string; ecode: string }> => {
@@ -384,7 +384,7 @@ export class EuPlatesc {
       ukey: this.userKey,
       amount: amount.toFixed(2).toString(),
       reason,
-      epid
+      epid: epId
     };
 
     const useSecretKey = false;
@@ -402,12 +402,12 @@ export class EuPlatesc {
    * It might be an EuPlătesc bug.
    *
    * @since   1.0.0
-   * @param   {string}  epid    The EPID of the transaction.
+   * @param   {string}  epId    The EPID of the transaction.
    * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
    * @returns {Promise}         Either { success } for success or { error?: string; message?: string; ecode: string } for error.
    */
   public cancelRecurring = async (
-    epid: string,
+    epId: string,
     reason: string = ''
   ): Promise<{ success: string } | { error?: string; message?: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
@@ -419,7 +419,7 @@ export class EuPlatesc {
     const payload: Payload = {
       method: Methods.CANCEL_RECURRING,
       ukey: this.userKey,
-      epid,
+      epid: epId,
       reason
     };
 
@@ -435,12 +435,12 @@ export class EuPlatesc {
    * Update invoice ID of transaction
    *
    * @since   1.0.0
-   * @param   {string}  epid      The EPID of the transaction.
+   * @param   {string}  epId      The EPID of the transaction.
    * @param   {string}  invoiceId The invoice ID which will be updated the transaction with.
    * @returns {Promise}           Either { success: '1' } for success or { error } for error.
    */
   public updateInvoiceId = async (
-    epid: string,
+    epId: string,
     invoiceId: string
   ): Promise<{ success: string } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
@@ -452,7 +452,7 @@ export class EuPlatesc {
     const payload: Payload = {
       method: Methods.UPDATE_IID,
       ukey: this.userKey,
-      epid,
+      epid: epId,
       invoice_id: invoiceId
     };
 
@@ -565,17 +565,17 @@ export class EuPlatesc {
    * Get card art data
    *
    * @since   1.0.0
-   * @param   {string}  epid  The EPID of the transaction.
+   * @param   {string}  epId  The EPID of the transaction.
    * @returns {Promise}       Either the card art data or error.
    */
-  public getCardArt = async (epid: string): Promise<{ success: CardArt } | { error: string; ecode: string }> => {
+  public getCardArt = async (epId: string): Promise<{ success: CardArt } | { error: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
         'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
-    const payload: Payload = { method: Methods.CARDART, ukey: this.userKey, ep_id: epid };
+    const payload: Payload = { method: Methods.CARDART, ukey: this.userKey, ep_id: epId };
     const useSecretKey = false;
 
     return await this.genericRequest<Payload, { success: CardArt } | { error: string; ecode: string }>(

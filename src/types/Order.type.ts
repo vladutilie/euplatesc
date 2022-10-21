@@ -39,7 +39,7 @@ export type Extra = {
   rate?: string;
   filterRate?: string;
   channel?: string;
-  generateEpid?: string;
+  generateEpId?: string;
   valability?: Date;
   c2pId?: string;
   c2pCid?: string;
