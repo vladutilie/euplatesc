@@ -80,11 +80,11 @@ export class EuPlatesc {
   }
 
   /**
-   * Generate EuPlatesc payment URL
+   * Generate EuPlătesc payment URL
    *
    * @since   1.0.0
    * @param   {Hmac & Order}        data  Data to generate the payment URL.
-   * @returns {paymentUrl: string}        The URL where a payment can be made on euplatesc.ro website.
+   * @returns {paymentUrl: string}        The URL to euplatesc.ro payment form.
    */
   public paymentUrl = (data: Hmac & Order): { paymentUrl: string } => {
     if (!data.amount) {
@@ -198,21 +198,21 @@ export class EuPlatesc {
   };
 
   /**
-   * Check response after the user make the payment and return to the website
+   * Check response after the user makes the payment and returns to the website
    *
    * @since 1.0.0
    * @param {Response} param
-   * @param {string}   param.amount     The amount of the made transaction.
-   * @param {Currency} param.currency   The currency of the made transaction.
-   * @param {string}   param.invoiceId  The invoice ID of the made transaction.
-   * @param {string}   param.epId       The ep ID of the made transaction.
+   * @param {string}   param.amount     The amount of the paid transaction.
+   * @param {Currency} param.currency   The currency of the paid transaction.
+   * @param {string}   param.invoiceId  The invoice ID of the paid transaction.
+   * @param {string}   param.epId       The ep ID of the paid transaction.
    * @param {string}   param.merchantId The merchant ID for the transaction was made for.
-   * @param {string}   param.action     The action of the made transaction.
-   * @param {string}   param.message    A message of the made transaction.
-   * @param {string}   param.approval   Approval value of the made transaction.
-   * @param {string}   param.timestamp  Timestamp of the made transaction.
-   * @param {string}   param.nonce      Nonce of the made transaction.
-   * @param {string}   param.fpHash     The hash of the made transaction.
+   * @param {string}   param.action     The action of the paid transaction.
+   * @param {string}   param.message    A message of the paid transaction.
+   * @param {string}   param.approval   Approval value of the paid transaction.
+   * @param {string}   param.timestamp  Timestamp of the paid transaction.
+   * @param {string}   param.nonce      Nonce of the paid transaction.
+   * @param {string}   param.fpHash     The hash of the paid transaction.
    * @returns { ResponseResult}         The response depending on the verifications.
    *
    * @todo Additional response fields should be added in the fp hash computation after nonce field.
@@ -270,7 +270,7 @@ export class EuPlatesc {
     invoiceId?: string;
   }): Promise<{ success: string } | { error: string; ecode: string }> => {
     if (!params?.epid && !params?.invoiceId) {
-      throw new Error('Please pass either "epid" or "invoiceId" param to "getTransactionPayload" method.');
+      throw new Error('Please pass either "epid" or "invoiceId" param to "getStatus" method.');
     }
 
     const payload: Payload = {
@@ -292,7 +292,7 @@ export class EuPlatesc {
   public capture = async (epid: string): Promise<{ success: string } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use the "capture()" method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use the "capture()" method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -312,7 +312,7 @@ export class EuPlatesc {
   public reversal = async (epid: string): Promise<{ success: string } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use the "reversal()" method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use the "reversal()" method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -336,7 +336,7 @@ export class EuPlatesc {
   ): Promise<{ success: string } | { error?: string; message?: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -371,7 +371,7 @@ export class EuPlatesc {
   ): Promise<{ success: string } | { error?: string; message?: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -395,7 +395,7 @@ export class EuPlatesc {
    * Cancel a recurring transaction
    *
    * Watch out: if you just test this method with a failed EPID, a valid recurring payment will be canceled :(
-   * It might be an EuPlatesc bug.
+   * It might be an EuPlătesc bug.
    *
    * @since   1.0.0
    * @param   {string}  epid    The EPID of the transaction.
@@ -408,7 +408,7 @@ export class EuPlatesc {
   ): Promise<{ success: string } | { error?: string; message?: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -441,7 +441,7 @@ export class EuPlatesc {
   ): Promise<{ success: string } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -474,7 +474,7 @@ export class EuPlatesc {
   }): Promise<{ success: Invoice[] } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -506,7 +506,7 @@ export class EuPlatesc {
   ): Promise<{ success: InvoiceTransaction[] } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -537,7 +537,7 @@ export class EuPlatesc {
   }): Promise<{ success: CapturedTotal } | { error: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -567,7 +567,7 @@ export class EuPlatesc {
   public getCardArt = async (epid: string): Promise<{ success: CardArt } | { error: string; ecode: string }> => {
     if (!this.userKey || !this.userApi) {
       throw new Error(
-        'To use this method you should instantiate the EuPlatesc client with "userKey" and "userApi" keys.'
+        'To use this method you should instantiate the EuPlătesc client with both "userKey" and "userApi" keys.'
       );
     }
 
@@ -666,7 +666,7 @@ export class EuPlatesc {
    * Wrapper for generic method that makes request with dynamic payload
    *
    * @since   1.0.0
-   * @param   {T}       payload       Data passed to make requests to EuPlatesc with.
+   * @param   {T}       payload       Data passed to make requests to EuPlătesc with.
    * @param   {boolean} useSecretKey  Optional. Whether to use secret key or user API key for Hmac hashing. Default: true.
    * @returns {Promise}
    */
