@@ -43,27 +43,27 @@ describe('euplatesc unit tests', (): void => {
       }).rejects.toThrow(Error);
     });
 
-    test('check the merchant id', (): void => {
+    test('Check the merchant id', (): void => {
       expect(typeof euplatescClient.merchantId).toBe('string');
       expect(euplatescClient.merchantId).toBe(euplatescConfig.merchantId);
     });
 
-    test('check the private key', (): void => {
+    test('Check the private key', (): void => {
       expect(typeof euplatescClient.secretKey).toBe('string');
       expect(euplatescClient.secretKey).toBe(euplatescConfig.secretKey);
     });
 
-    test('check the test mode', (): void => {
+    test('Check the test mode', (): void => {
       expect(typeof euplatescClient.testMode).toBe('boolean');
       expect(euplatescClient.testMode).toBe(euplatescConfig.testMode);
     });
 
-    test('check the user api', (): void => {
+    test('Check the user api', (): void => {
       expect(typeof euplatescClient.userApi).toBe('string');
       expect(euplatescClient.userApi).toBe(euplatescConfig.userApi);
     })
 
-    test('check the user key', (): void => {
+    test('Check the user key', (): void => {
       expect(typeof euplatescClient.userKey).toBe('string');
       expect(euplatescClient.userKey).toBe(euplatescConfig.userKey);
     })
@@ -289,7 +289,7 @@ describe('euplatesc unit tests', (): void => {
   });
 
   describe('computeHmac()', (): void => {
-    test('check computation', (): void => {
+    test('Check computation', (): void => {
       let euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
@@ -325,7 +325,7 @@ describe('euplatesc unit tests', (): void => {
       }).rejects.toThrow(Error);
     });
 
-    test('check request data', async (): Promise<void> => {
+    test('Check request data', async (): Promise<void> => {
       let euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
