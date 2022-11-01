@@ -11,7 +11,9 @@ describe('euplatesc unit tests', (): void => {
   let euplatescConfig: Config = {
     merchantId: 'my-other-merchant-id',
     secretKey: 'some-other-secret-key',
-    testMode: false
+    testMode: false,
+    userApi: 'some-user-api',
+    userKey: 'some-user-key'
   };
 
   describe('constructor()', (): void => {
@@ -55,6 +57,16 @@ describe('euplatesc unit tests', (): void => {
       expect(typeof euplatescClient.testMode).toBe('boolean');
       expect(euplatescClient.testMode).toBe(euplatescConfig.testMode);
     });
+
+    test('check the user api', (): void => {
+      expect(typeof euplatescClient.userApi).toBe('string');
+      expect(euplatescClient.userApi).toBe(euplatescConfig.userApi);
+    })
+
+    test('check the user key', (): void => {
+      expect(typeof euplatescClient.userKey).toBe('string');
+      expect(euplatescClient.userKey).toBe(euplatescConfig.userKey);
+    })
   });
 
   describe('paymentUrl()', (): void => {
