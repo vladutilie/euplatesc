@@ -34,7 +34,7 @@ export class EuPlatesc {
   protected gatewayUrl = 'https://secure.euplatesc.ro/tdsprocess/tranzactd.php';
 
   /**
-   * EuPlătesc class constructor
+   * EuPlătesc class constructor.
    *
    * @since 1.0.0
    * @param {string} param.merchantId Merchant ID.
@@ -84,7 +84,7 @@ export class EuPlatesc {
   }
 
   /**
-   * Generate EuPlătesc payment URL
+   * Generate EuPlătesc payment URL.
    *
    * @since   1.0.0
    * @param   {Hmac & Order}        data  Data to generate the payment URL.
@@ -202,25 +202,25 @@ export class EuPlatesc {
   };
 
   /**
-   * Check response after the user makes the payment and returns to the website
+   * Check the response after the user makes the payment and returns to the website.
    *
    * @since 1.0.0
    * @param {Response} param
-   * @param {string}   param.amount     The amount of the paid transaction.
-   * @param {Currency} param.currency   The currency of the paid transaction.
-   * @param {string}   param.invoiceId  The invoice ID of the paid transaction.
-   * @param {string}   param.epId       The ep ID of the paid transaction.
-   * @param {string}   param.merchantId The merchant ID for the transaction was made for.
-   * @param {string}   param.action     The action of the paid transaction.
-   * @param {string}   param.message    A message of the paid transaction.
-   * @param {string}   param.approval   Approval value of the paid transaction.
-   * @param {string}   param.timestamp  Timestamp of the paid transaction.
-   * @param {string}   param.nonce      Nonce of the paid transaction.
-   * @param {string}   param.fpHash     The hash of the paid transaction.
-   * @returns { ResponseResult}         The response depending on the verifications.
+   * @param {string}   param.amount     The paid transaction's amount.
+   * @param {Currency} param.currency   The paid transaction's currency.
+   * @param {string}   param.invoiceId  The paid transaction's invoice ID.
+   * @param {string}   param.epId       The paid transaction's ep ID. 
+   * @param {string}   param.merchantId The transaction's merchant ID.
+   * @param {string}   param.action     The paid transaction's action.
+   * @param {string}   param.message    The paid transaction's message.
+   * @param {string}   param.approval   The paid transaction's approval value.
+   * @param {string}   param.timestamp  The paid transaction's timestamp. 
+   * @param {string}   param.nonce      The paid transaction's nonce.
+   * @param {string}   param.fpHash     The paid transaction's hash.
+   * @returns { ResponseResult}         The verifications' response.
    *
    * @todo Additional response fields should be added in the fp hash computation after nonce field.
-   * @todo Create test case for this method.
+   * @todo Create a test case for this method.
    */
   public checkResponse({
     amount,
@@ -262,11 +262,11 @@ export class EuPlatesc {
   }
 
   /**
-   * Get status of a transaction
+   * Get the status of a transaction.
    *
    * @since   1.0.0
-   * @param   {string}  params.epId      The EPID of the transaction.
-   * @param   {string}  params.invoiceId The EPID of the transaction.
+   * @param   {string}  params.epId      The transaction's ep ID.
+   * @param   {string}  params.invoiceId The transaction's invoice ID.
    * @returns {Promise}                  Either { success: string } for success or { error, ecode } for error.
    */
   public getStatus = async (params: {
@@ -287,10 +287,10 @@ export class EuPlatesc {
   };
 
   /**
-   * Capture a transaction
+   * Capture a transaction.
    *
    * @since   1.0.0
-   * @param   {string}  epId  The EPID of the transaction.
+   * @param   {string}  epId  The transaction's ep ID.
    * @returns {Promise}       Either { success: '1' } for success or { error: string; ecode: string } for error.
    */
   public capture = async (epId: string): Promise<{ success: string } | { error: string; ecode: string }> => {
@@ -307,10 +307,10 @@ export class EuPlatesc {
   };
 
   /**
-   * Reversal a transaction
+   * Reversal of a transaction.
    *
    * @since   1.0.0
-   * @param   {string}  epId  The EPID of the transaction.
+   * @param   {string}  epId  The transaction's ep ID.
    * @returns {Promise}       Either { success: '1' } for success or { error: string; ecode: string } for error.
    */
   public reversal = async (epId: string): Promise<{ success: string } | { error: string; ecode: string }> => {
@@ -327,11 +327,11 @@ export class EuPlatesc {
   };
 
   /**
-   * Partial capture a transaction
+   * Partial capture of a transaction.
    *
    * @since   1.0.0
-   * @param   {string}  epId    The EPID of the transaction.
-   * @param   {number}  amount  Amount to be captured.
+   * @param   {string}  epId    The transaction's ep ID.
+   * @param   {number}  amount  Partially captured amount.
    * @returns {Promise}         Either { success: '1' } for success or { error?: string; message?: string; ecode: string } for error.
    */
   public partialCapture = async (
@@ -360,12 +360,12 @@ export class EuPlatesc {
   };
 
   /**
-   * (Partial) Refund a transaction
+   * (Partial) Refund a transaction.
    *
    * @since   1.0.0
-   * @param   {string}  epId    The EPID of the transaction.
-   * @param   {string}  amount  Amount to be captured.
-   * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
+   * @param   {string}  epId    The transaction's ep ID.
+   * @param   {string}  amount  The refunded amount. It can be smaller than the total amount of the transaction.
+   * @param   {string}  reason  Optional. The reason, the transaction is to be refunded.
    * @returns {Promise}         Either { success: '1' } for success or { error?: string; message?: string; ecode: string } for error.
    */
   public refund = async (
@@ -396,14 +396,14 @@ export class EuPlatesc {
   };
 
   /**
-   * Cancel a recurring transaction
+   * Cancel a recurring transaction.
    *
    * Watch out: if you just test this method with a failed EPID, a valid recurring payment will be canceled :(
    * It might be an EuPlătesc bug.
    *
    * @since   1.0.0
-   * @param   {string}  epId    The EPID of the transaction.
-   * @param   {string}  reason  Optional. The reason why the transaction will be refunded.
+   * @param   {string}  epId    The transaction's ep ID.
+   * @param   {string}  reason  Optional. The reason, the transaction is to be canceled.
    * @returns {Promise}         Either { success } for success or { error?: string; message?: string; ecode: string } for error.
    */
   public cancelRecurring = async (
@@ -432,11 +432,11 @@ export class EuPlatesc {
   };
 
   /**
-   * Update invoice ID of transaction
+   * Update invoice ID of a transaction.
    *
    * @since   1.0.0
-   * @param   {string}  epId      The EPID of the transaction.
-   * @param   {string}  invoiceId The invoice ID which will be updated the transaction with.
+   * @param   {string}  epId      The transaction's ep ID.
+   * @param   {string}  invoiceId The ID of the invoice to be updated.
    * @returns {Promise}           Either { success: '1' } for success or { error } for error.
    */
   public updateInvoiceId = async (
@@ -462,14 +462,14 @@ export class EuPlatesc {
   };
 
   /**
-   * Get invoice list
+   * Get invoice list.
    *
-   * If `from` and `to` are sent empty will search invoices in last 3 months.
-   * Returns max 100 records.
+   * If `from` and `to` are sent empty, it will look for invoices from the last three months.
+   * It returns max 100 records.
    *
    * @since   1.0.0
-   * @param   {Date}    params.from Optional. Date the filter starts to search invoices from.
-   * @param   {Date}    params.to   Optional. Date the filter ends to search invoices to.
+   * @param   {Date}    params.from Optional. The date from which the filter starts to search invoices.
+   * @param   {Date}    params.to   Optional. The date to which the filter ends to search invoices.
    * @returns {Promise}             Either invoice list or error.
    */
   public getInvoiceList = async (params?: {
@@ -499,7 +499,7 @@ export class EuPlatesc {
   };
 
   /**
-   * Get invoice transaction list
+   * Get invoice transaction list.
    *
    * @since   1.0.0
    * @param   {string}  invoice  Settlement invoice number.
@@ -524,14 +524,14 @@ export class EuPlatesc {
   };
 
   /**
-   * Get captured total
+   * Get captured total.
    *
    * If `params.from` and `params.to` are sent empty will search in last month.
    *
    * @since   1.0.0
-   * @param   {string} params.mid   Optional. Merchant IDs sepparated by comma. If empty, it will setup the merchant ID from client initialization.
-   * @param   {Date}   params.from  Optional. Date the filter starts to search totals from.
-   * @param   {Date}   params.to    Optional. Date the filter ends to search totals to.
+   * @param   {string} params.mids  Optional. Separated merchant IDs by commas. If empty, it will set up the merchant ID from client initialization.
+   * @param   {Date}   params.from  Optional. The date from which the filter starts to search totals.
+   * @param   {Date}   params.to    Optional. The date to which the filter ends to search totals.
    * @returns {Promise}             Either totals of captured amounts or error.
    */
   public getCapturedTotal = async (params?: {
@@ -562,10 +562,10 @@ export class EuPlatesc {
   };
 
   /**
-   * Get card art data
+   * Get card art data.
    *
    * @since   1.0.0
-   * @param   {string}  epId  The EPID of the transaction.
+   * @param   {string}  epId  The transaction's ep ID.
    * @returns {Promise}       Either the card art data or error.
    */
   public getCardArt = async (epId: string): Promise<{ success: CardArt } | { error: string; ecode: string }> => {
@@ -585,11 +585,11 @@ export class EuPlatesc {
   };
 
   /**
-   * Get saved cards of a customer
+   * Get saved cards of a customer.
    *
    * @since   1.0.0
    * @param   {string}  clientId  The ID of the client.
-   * @param   {string}  mid       Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
+   * @param   {string}  mid       Optional. Merchant ID. If empty, it will set up the merchant ID from client initialization.
    * @returns {Promise}           Either list of cards or error.
    */
   public getSavedCards = async (
@@ -606,12 +606,12 @@ export class EuPlatesc {
   };
 
   /**
-   * Remove card of a customer
+   * Remove a saved card of a customer.
    *
    * @since   1.0.0
    * @param   {string}  clientId  The ID of the client.
    * @param   {string}  cardId    The ID of the card.
-   * @param   {string}  mid       Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
+   * @param   {string}  mid       Optional. Merchant ID. If empty, it will set up the merchant ID from client initialization.
    * @returns {Promise}           Either { success: '1' } for success or { error, ecode } for error.
    */
   public removeCard = async (
@@ -630,10 +630,10 @@ export class EuPlatesc {
   };
 
   /**
-   * Check merchant ID
+   * Check a merchant ID.
    *
    * @since   1.0.0
-   * @param   {string}  mid Optional. Merchant ID. If empty, it will setup the merchant ID from client initialization.
+   * @param   {string}  mid Optional. Merchant ID. If empty, it will se tup the merchant ID from client initialization.
    * @returns {Promise}     Merchant data or error.
    */
   public checkMid = async (mid?: string): Promise<Merchant | { error: string }> => {
@@ -643,12 +643,12 @@ export class EuPlatesc {
   };
 
   /**
-   * Compute Hmac from data object
+   * Compute Hmac from the data object.
    *
    * @since   1.0.0
-   * @param   {Base<T>} data          Object data created in order to generate the hash.
+   * @param   {Base<T>} data          Created object data to generate the hash.
    * @param   {boolean} useSecretKey  Whether to use the secret key or the user API key.
-   * @returns {string}                The hash generated from passed data.
+   * @returns {string}                The generated hash from the passed data.
    */
   public computeHmac = <T>(data: Base<T>, useSecretKey: boolean = true): string => {
     let hmac: string = '';
@@ -667,11 +667,11 @@ export class EuPlatesc {
   };
 
   /**
-   * Wrapper for generic method that makes request with dynamic payload
+   * Wrapper for a generic method that requests with dynamic payload.
    *
    * @since   1.0.0
-   * @param   {T}       payload       Data passed to make requests to EuPlătesc with.
-   * @param   {boolean} useSecretKey  Optional. Whether to use secret key or user API key for Hmac hashing. Default: true.
+   * @param   {T}       payload       Passed data to request the EuPlătesc with.
+   * @param   {boolean} useSecretKey  Optional. Whether to use the secret key or user API key for Hmac hashing. Default: true.
    * @returns {Promise}
    */
   protected genericRequest = async <T, U>(payload: T, useSecretKey: boolean = true): Promise<U> => {
@@ -693,7 +693,7 @@ export class EuPlatesc {
   };
 
   /**
-   * Format timestamp as YYYYMMDDHHMMSS
+   * Format timestamp as YYYYMMDDHHMMSS.
    *
    * @since   1.0.0
    * @returns {string} Formatted timestamp.
