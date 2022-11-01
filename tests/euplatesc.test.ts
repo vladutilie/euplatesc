@@ -19,6 +19,28 @@ describe('euplatesc unit tests', (): void => {
       euplatescClient = new EuPlatesc(euplatescConfig);
     });
 
+    test('missing merchant id', (): void => {
+      const config: Config = {
+        merchantId: '',
+        secretKey: 'secret key',
+      }
+
+      expect(async () => {
+        new EuPlatesc(config);
+      }).rejects.toThrow(Error);
+    });
+
+    test('missing secret id', (): void => {
+      const config: Config = {
+        merchantId: 'merchant id',
+        secretKey: '',
+      }
+
+      expect(async () => {
+        new EuPlatesc(config);
+      }).rejects.toThrow(Error);
+    });
+
     test('check the merchant id', (): void => {
       expect(typeof euplatescClient.merchantId).toBe('string');
       expect(euplatescClient.merchantId).toBe(euplatescConfig.merchantId);
