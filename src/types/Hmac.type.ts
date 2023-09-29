@@ -1,6 +1,6 @@
 import { Methods } from './Methods.enum';
 
-export type Currency = 'RON' | 'USD' | 'EUR';
+export type Currency = 'RON' | 'EUR' | 'USD' | 'HUF' | 'MDL' | 'BGN' | 'GBP' | 'PLN';
 
 export type Hmac = {
   amount: number;
