@@ -6,6 +6,8 @@
 
 - Support for the following currencies was added: HUF, MDL, BGN, GBP, and PLN.
 - Typos fixed in the readme file.
+- Axios updated to the latest version: 1.5.1.
+- Development dependencies updated.
 
 ## [1.0.4] - 2022-11-01
 
