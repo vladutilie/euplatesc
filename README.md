@@ -36,7 +36,7 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 
 This package is the result of my passion and openness to open-source software. I had to implement this service many times in my projects, and almost every time, I had to deal with a headache due to the poor documentation and the non-standard "REST API" provided by EuPlătesc.
 
-This package covers all the actions provided in the EuPlătesc documentation. It can be used either as CommonJS or ES module.
+This package covers all the actions provided in the EuPlătesc documentation. It can be used either as a CommonJS or ES module.
 
 # Installation [⤴](#table-of-contents)
 
@@ -61,8 +61,8 @@ Create a client file and instantiate the EuPlătesc class:
 import { EuPlatesc } from 'euplatesc';
 
 export default epClient = new EuPlatesc({
-  merchantId: process.env.EUPLATEC_MERCHANT_ID,
-  secretKey: process.env.EUPLATEC_SECRET_KEY
+  merchantId: process.env.EUPLATESC_MERCHANT_ID,
+  secretKey: process.env.EUPLATESC_SECRET_KEY
 });
 ```
 
@@ -86,8 +86,8 @@ epClient.checkMid().then((midInfo) => console.log(midInfo));
 import { EuPlatesc } from 'euplatesc';
 
 const epClient = new EuPlatesc({
-  merchantId: process.env.EUPLATEC_MERCHANT_ID,
-  secretKey: process.env.EUPLATEC_SECRET_KEY,
+  merchantId: process.env.EUPLATESC_MERCHANT_ID,
+  secretKey: process.env.EUPLATESC_SECRET_KEY,
   testMode: 'true' === process.env.EUPLATESC_TEST_MODE,
   userKey: process.env.EUPLATESC_USER_KEY,
   userApi: process.env.EUPLATESC_USER_API
@@ -101,13 +101,13 @@ The user key (UKEY) and the user API (UAPI) are optional for some methods, but r
 <details>
   <summary>Parameter list</summary>
 
-| Field         | Type    | Description                                                          |
-| ------------- | ------- | -------------------------------------------------------------------- |
-| merchantId \* | string  | The merchant ID.                                                     |
-| secretKey \*  | string  | The secret key.                                                      |
-| testMode      | boolean | Optional. Whether the module is in test mode or not. Default: false. |
-| userKey       | string  | Optional. The user key                                               |
-| userApi       | string  | Optional. The user API.                                              |
+| Field         | Type    | Description                                                            |
+| ------------- | ------- | ---------------------------------------------------------------------- |
+| merchantId \* | string  | The merchant ID.                                                       |
+| secretKey \*  | string  | The secret key.                                                        |
+| testMode      | boolean | Optional. Whether the module is in test mode or not. Default: `false`. |
+| userKey       | string  | Optional. The user key                                                 |
+| userApi       | string  | Optional. The user API.                                                |
 
 \* Required field.
 
@@ -133,50 +133,50 @@ console.log(epClient.paymentUrl(data));
 <details>
   <summary>Parameter list</summary>
 
-| Field               | Type                                                 | Description                                                                                                                    |
-| ------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| amount \*           | number                                               |                                                                                                                                |
-| currency \*         | 'RON' \| 'USD' \| 'EUR'                              |                                                                                                                                |
-| invoiceId \*        | string                                               |                                                                                                                                |
-| orderDescription \* | string                                               |                                                                                                                                |
-| frequency           | { days: number; expiresAt: Date }                    |                                                                                                                                |
-| billingFirstName    | string                                               |                                                                                                                                |
-| billingLastName     | string                                               |                                                                                                                                |
-| billingCompany      | string                                               | Company data.                                                                                                                  |
-| billingAddress      | string                                               |                                                                                                                                |
-| billingCity         | string                                               |                                                                                                                                |
-| billingState        | string                                               |                                                                                                                                |
-| billingZip          | string                                               |                                                                                                                                |
-| billingCountry      | string                                               |                                                                                                                                |
-| billingPhone        | string                                               |                                                                                                                                |
-| billingEmail        | string                                               |                                                                                                                                |
-| shippingFirstName   | string                                               |                                                                                                                                |
-| shippingLastName    | string                                               |                                                                                                                                |
-| shippingCompany     | string                                               | Company data.                                                                                                                  |
-| shippingAddress     | string                                               |                                                                                                                                |
-| shippingCity        | string                                               |                                                                                                                                |
-| shippingState       | string                                               |                                                                                                                                |
-| shippingZip         | string                                               |                                                                                                                                |
-| shippingCountry     | string                                               |                                                                                                                                |
-| shippingPhone       | string                                               |                                                                                                                                |
-| shippingEmail       | string                                               |                                                                                                                                |
-| Extra               | string                                               | Additional information sent by the merchant to the gateway. This data is echoed back to the merchant in the reply request.     |
-| silentUrl           | string                                               | Callback URL                                                                                                                   |
-| successUrl          | string                                               | URL to redirect the client in case of a successful transaction.                                                                |
-| failedUrl           | string                                               | URL to redirect the client in case of a failed transaction.                                                                    |
-| epTarget            | string                                               | "self" for the case of using iframe.                                                                                           |
-| epMethod            | string                                               | "post" or "get" for succes/fail redirect.                                                                                      |
-| backToSite          | string                                               | URL to redirect the client when clicking back to the site button or after 60 seconds on the result page.                       |
-| backToSiteMethod    | string                                               | "post" or "get" for the back-to-site button.                                                                                   |
-| expireUrl           | string                                               | If a timer is set on the payment page, you can change the URL to which the client will be redirected when the timer reaches 0. |
-| rate                | string                                               | Installments number. Format: [bank_code]-[installments_no].                                                                    |
-| filterRate          | string                                               | Installments number. Format: [bank_code1]-[i_no1]-...-[i_noN],[bank_code2]-[i_no1]-...-[i_no2]. Ex: `apb-3-4,btrl-5-6`         |
-| channel             | string                                               | Filter the available payment channels. Any combinations of the values CC, OP, C2P, and MASTERPASS concatenated with a comma.   |
-| generateEpid        | string                                               | If specified and have value 1, instead of redirecting the client will return a JSON containing the URL of the payment page.    |
-| valability          | Date                                                 | Payment link available until the specified timestamp (Romania timezone).                                                       |
-| c2pId               | string                                               | Unique ID of the client used for C2P wallet, blank values disable the wallet.                                                  |
-| c2pCid              | string                                               | Unique ID of the enrolled card used for C2P wallet.                                                                            |
-| lang                | 'ro' \| 'en' \| 'fr' \| 'de' \| 'it' \| 'es' \| 'hu' | Preselect the language of the payment page. If not sent, the language will be chosen based on the client\'s IP.                |
+| Field               | Type                                                                 | Description                                                                                                                    |
+| ------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| amount \*           | number                                                               |                                                                                                                                |
+| currency \*         | 'RON' \| 'EUR' \| 'USD' \| 'HUF' \| 'MDL' \| 'BGN' \| 'GBP' \| 'PLN' |                                                                                                                                |
+| invoiceId \*        | string                                                               |                                                                                                                                |
+| orderDescription \* | string                                                               |                                                                                                                                |
+| frequency           | { days: number; expiresAt: Date }                                    |                                                                                                                                |
+| billingFirstName    | string                                                               |                                                                                                                                |
+| billingLastName     | string                                                               |                                                                                                                                |
+| billingCompany      | string                                                               | Billing company name.                                                                                                          |
+| billingAddress      | string                                                               | Billing (company) address.                                                                                                     |
+| billingCity         | string                                                               | Billing (company) city.                                                                                                        |
+| billingState        | string                                                               | Billing (company) county.                                                                                                      |
+| billingZip          | string                                                               | Billing (company) ZIP code.                                                                                                    |
+| billingCountry      | string                                                               | Billing (company) country.                                                                                                     |
+| billingPhone        | string                                                               | Billing (company) phone number.                                                                                                |
+| billingEmail        | string                                                               | Billing (company) email address.                                                                                               |
+| shippingFirstName   | string                                                               |                                                                                                                                |
+| shippingLastName    | string                                                               |                                                                                                                                |
+| shippingCompany     | string                                                               | Company data.                                                                                                                  |
+| shippingAddress     | string                                                               |                                                                                                                                |
+| shippingCity        | string                                                               |                                                                                                                                |
+| shippingState       | string                                                               |                                                                                                                                |
+| shippingZip         | string                                                               |                                                                                                                                |
+| shippingCountry     | string                                                               |                                                                                                                                |
+| shippingPhone       | string                                                               |                                                                                                                                |
+| shippingEmail       | string                                                               |                                                                                                                                |
+| Extra               | string                                                               | Additional information sent by the merchant to the gateway. This data is echoed back to the merchant in the reply request.     |
+| silentUrl           | string                                                               | Callback URL                                                                                                                   |
+| successUrl          | string                                                               | URL to redirect the client in case of a successful transaction.                                                                |
+| failedUrl           | string                                                               | URL to redirect the client in case of a failed transaction.                                                                    |
+| epTarget            | string                                                               | "self" for the case of using iframe.                                                                                           |
+| epMethod            | string                                                               | "post" or "get" for succes/fail redirect.                                                                                      |
+| backToSite          | string                                                               | URL to redirect the client when clicking back to the site button or after 60 seconds on the result page.                       |
+| backToSiteMethod    | string                                                               | "post" or "get" for the back-to-site button.                                                                                   |
+| expireUrl           | string                                                               | If a timer is set on the payment page, you can change the URL to which the client will be redirected when the timer reaches 0. |
+| rate                | string                                                               | Installments number. Format: [bank_code]-[installments_no].                                                                    |
+| filterRate          | string                                                               | Installments number. Format: [bank_code1]-[i_no1]-...-[i_noN],[bank_code2]-[i_no1]-...-[i_no2]. Ex: `apb-3-4,btrl-5-6`         |
+| channel             | string                                                               | Filter the available payment channels. Any combinations of the values CC, OP, C2P, and MASTERPASS concatenated with a comma.   |
+| generateEpid        | string                                                               | If specified and have value 1, instead of redirecting the client will return a JSON containing the URL of the payment page.    |
+| valability          | Date                                                                 | Payment link available until the specified timestamp (Romania timezone).                                                       |
+| c2pId               | string                                                               | Unique ID of the client used for C2P wallet, blank values disable the wallet.                                                  |
+| c2pCid              | string                                                               | Unique ID of the enrolled card used for C2P wallet.                                                                            |
+| lang                | 'ro' \| 'en' \| 'fr' \| 'de' \| 'it' \| 'es' \| 'hu'                 | Preselect the language of the payment page. If not sent, the language will be chosen based on the client\'s IP.                |
 
 _\* required fields_
 
@@ -235,19 +235,19 @@ console.log(epClient.checkResponse(params));
 <details>
   <summary>Parameter list</summary>
 
-| Field      | Type                    | Description                            |
-| ---------- | ----------------------- | -------------------------------------- |
-| amount     | string                  | The made transaction's amount.         |
-| currency   | 'RON' \| 'USD' \| 'EUR' | The made transaction's currency.       |
-| invoiceId  | string                  | The made transaction's invoice ID.     |
-| epId       | string                  | The made transaction's ep ID.          |
-| merchantId | string                  | The made transaction's merchant ID.    |
-| action     | string                  | The made transaction's action.         |
-| message    | string                  | The made transaction's message.        |
-| approval   | string                  | The made transaction's approval value. |
-| timestamp  | string                  | The made transaction's timestamp.      |
-| nonce      | string                  | The made transaction's nonce.          |
-| fpHash     | string                  | The made transaction's hash.           |
+| Field      | Type                                                                 | Description                            |
+| ---------- | -------------------------------------------------------------------- | -------------------------------------- |
+| amount     | string                                                               | The made transaction's amount.         |
+| currency   | 'RON' \| 'EUR' \| 'USD' \| 'HUF' \| 'MDL' \| 'BGN' \| 'GBP' \| 'PLN' | The made transaction's currency.       |
+| invoiceId  | string                                                               | The made transaction's invoice ID.     |
+| epId       | string                                                               | The made transaction's ep ID.          |
+| merchantId | string                                                               | The made transaction's merchant ID.    |
+| action     | string                                                               | The made transaction's action.         |
+| message    | string                                                               | The made transaction's message.        |
+| approval   | string                                                               | The made transaction's approval value. |
+| timestamp  | string                                                               | The made transaction's timestamp.      |
+| nonce      | string                                                               | The made transaction's nonce.          |
+| fpHash     | string                                                               | The made transaction's hash.           |
 
 </details>
 

@@ -5,6 +5,7 @@
 ### Changed
 
 - Support for the following currencies was added: HUF, MDL, BGN, GBP, and PLN.
+- Typos fixed in the readme file.
 
 ## [1.0.4] - 2022-11-01
 
