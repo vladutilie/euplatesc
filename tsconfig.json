@@ -3,9 +3,16 @@
     "target": "ES2022",
     "declaration": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
+    // TODO: TypeScript 7 drops node10 resolution. Migrating means "node16" plus a
+    // `{"type":"module"}` marker in dist/esm, which changes the published layout -
+    // deliberately deferred. ts-jest and typescript-eslint do not support TS 7 yet.
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    // TypeScript 6 no longer pulls in node_modules/@types implicitly.
+    "types": ["node"],
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"]

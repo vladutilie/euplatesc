@@ -26,20 +26,41 @@ export type ShippingDetails = {
   shippingEmail?: string;
 };
 
+/**
+ * Payment channels accepted by `ExtraData[ep_channel]`.
+ *
+ * @since 1.1.0
+ */
+export type PaymentChannel = 'CC' | 'OP' | 'C2P' | 'GPAY' | 'APAY' | 'TBI' | 'paypo';
+
 export type Extra = {
   Extra?: string;
   silentUrl?: string;
+  /**
+   * SecStatus callback URL (server to server POST request).
+   *
+   * @since 1.1.0
+   */
+  silentUrlSec?: string;
   successUrl?: string;
   failedUrl?: string;
   epTarget?: string;
-  epMethod?: string;
+  /** "post", "get" or "getclean" (keeping the original query params). */
+  epMethod?: 'post' | 'get' | 'getclean' | (string & {});
   backToSite?: string;
-  backToSiteMethod?: string;
+  backToSiteMethod?: 'post' | 'get' | (string & {});
   expireUrl?: string;
   rate?: string;
   filterRate?: string;
-  channel?: string;
+  /** Comma-separated {@link PaymentChannel} values, ex: `'CC,APAY'`. */
+  channel?: PaymentChannel | (string & {});
   generateEpId?: string;
+  /**
+   * Allow card validation with an amount of 0.
+   *
+   * @since 1.1.0
+   */
+  validateCc?: boolean;
   valability?: Date;
   c2pId?: string;
   c2pCid?: string;
@@ -48,7 +69,7 @@ export type Extra = {
 
 export type BaseOrder = {
   fp_hash?: string;
-  recurent?: 'Base';
+  recurent?: string;
 } & BaseBillingDetails &
   BaseShippingDetails &
   BaseExtra;
@@ -82,6 +103,7 @@ export type BaseShippingDetails = {
 export type BaseExtra = {
   ExtraData?: string;
   'ExtraData[silenturl]'?: string;
+  'ExtraData[silenturlsec]'?: string;
   'ExtraData[successurl]'?: string;
   'ExtraData[failedurl]'?: string;
   'ExtraData[ep_target]'?: string;
@@ -93,6 +115,7 @@ export type BaseExtra = {
   'ExtraData[filtru_rate]'?: string;
   'ExtraData[ep_channel]'?: string;
   generate_epid?: string;
+  validate_cc?: string;
   valability?: string;
   c2p_id?: string;
   c2p_cid?: string;

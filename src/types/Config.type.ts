@@ -4,4 +4,6 @@ export type Config = {
   testMode?: boolean;
   userKey?: string;
   userApi?: string;
+  /** Optional. HTTP request timeout in milliseconds. Default: 30000. */
+  timeout?: number;
 };
