@@ -22,6 +22,7 @@ jobs:
     permissions:
       packages: write
       contents: read
+      id-token: write # lets the job mint the OIDC token npm trusted publishing needs
     steps:
       - uses: actions/checkout@v4
       - name: Setup .npmrc file to publish to npm
@@ -34,9 +35,13 @@ jobs:
       - name: Build
         run: yarn build
       - name: Publish to npm
-        run: yarn publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Trusted publishing (OIDC) replaces NPM_TOKEN: npm classic tokens were
+        # permanently revoked on 2025-12-09. It is implemented by the npm CLI
+        # only, so this step cannot use `yarn publish`, and it needs npm >=
+        # 11.5.1, which is newer than the version Node 24 bundles.
+        run: |
+          npm install -g npm@latest
+          npm publish --access public
       - name: Setup .npmrc file to publish to GitHub Packages
         uses: actions/setup-node@v4
         with:
