@@ -13,8 +13,10 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 5. [API](#api-)
    - [Constructor](#constructor-)
    - [paymentUrl](#paymenturl-)
+   - [paymentParams](#paymentparams-)
    - [checkResponse](#checkresponse-)
    - [getStatus](#getstatus-)
+   - [printTransaction](#printtransaction-)
    - [capture](#capture-)
    - [reversal](#reversal-)
    - [partialCapture](#partialcapture-)
@@ -24,6 +26,7 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
    - [getInvoiceList](#getinvoicelist-)
    - [getInvoiceTransactions](#getinvoicetransactions-)
    - [getCapturedTotal](#getcapturedtotal-)
+   - [getTransactionList](#gettransactionlist-)
    - [getCardArt](#getcardart-)
    - [getSavedCards](#getsavedcards-)
    - [removeCard](#removecard-)
@@ -36,7 +39,7 @@ The EuPlătesc Node Library provides access to the entire EuPlătesc API from ap
 
 This package is the result of my passion and openness to open-source software. I had to implement this service many times in my projects, and almost every time, I had to deal with a headache due to the poor documentation and the non-standard "REST API" provided by EuPlătesc.
 
-This package covers all the actions provided in the EuPlătesc documentation. It can be used either as a CommonJS or ES module.
+This package covers all the actions provided in the EuPlătesc documentation. It can be used either as a CommonJS or ES module, and it has no runtime dependencies - it builds on the `fetch` and `FormData` globals, so it requires **Node 18 or newer**.
 
 # Installation [⤴](#table-of-contents)
 
@@ -108,6 +111,7 @@ The user key (UKEY) and the user API (UAPI) are optional for some methods, but r
 | testMode      | boolean | Optional. Whether the module is in test mode or not. Default: `false`. |
 | userKey       | string  | Optional. The user key                                                 |
 | userApi       | string  | Optional. The user API.                                                |
+| timeout       | number  | Optional. HTTP request timeout, in milliseconds. Default: `30000`.     |
 
 \* Required field.
 
@@ -139,7 +143,9 @@ console.log(epClient.paymentUrl(data));
 | currency \*         | 'RON' \| 'EUR' \| 'USD' \| 'HUF' \| 'MDL' \| 'BGN' \| 'GBP' \| 'PLN' |                                                                                                                                |
 | invoiceId \*        | string                                                               |                                                                                                                                |
 | orderDescription \* | string                                                               |                                                                                                                                |
-| frequency           | { days: number; expiresAt: Date }                                    |                                                                                                                                |
+| frequency           | { days: number; expiresAt?: Date }                                   | Marks the order as the `Base` transaction of a recurring chain. `expiresAt` defaults to one year from now.                     |
+| baseEpId            | string                                                               | The `ep_id` of the initial `Base` transaction. Required for merchant-initiated subsequent recurring transactions.               |
+| recurrentType       | 'Base' \| 'Recurent' \| 'Recurent2CIT'                               | Defaults to `Base` when `frequency` is set, and to `Recurent` when only `baseEpId` is set.                                      |
 | billingFirstName    | string                                                               |                                                                                                                                |
 | billingLastName     | string                                                               |                                                                                                                                |
 | billingCompany      | string                                                               | Billing company name.                                                                                                          |
@@ -161,19 +167,21 @@ console.log(epClient.paymentUrl(data));
 | shippingPhone       | string                                                               |                                                                                                                                |
 | shippingEmail       | string                                                               |                                                                                                                                |
 | Extra               | string                                                               | Additional information sent by the merchant to the gateway. This data is echoed back to the merchant in the reply request.     |
-| silentUrl           | string                                                               | Callback URL                                                                                                                   |
+| silentUrl           | string                                                               | Callback URL (server to server POST request).                                                                                  |
+| silentUrlSec        | string                                                               | SecStatus callback URL (server to server POST request).                                                                        |
 | successUrl          | string                                                               | URL to redirect the client in case of a successful transaction.                                                                |
 | failedUrl           | string                                                               | URL to redirect the client in case of a failed transaction.                                                                    |
 | epTarget            | string                                                               | "self" for the case of using iframe.                                                                                           |
-| epMethod            | string                                                               | "post" or "get" for succes/fail redirect.                                                                                      |
+| epMethod            | 'post' \| 'get' \| 'getclean'                                        | Method used for the succes/fail redirect. `getclean` keeps the original query params.                                          |
 | backToSite          | string                                                               | URL to redirect the client when clicking back to the site button or after 60 seconds on the result page.                       |
 | backToSiteMethod    | string                                                               | "post" or "get" for the back-to-site button.                                                                                   |
 | expireUrl           | string                                                               | If a timer is set on the payment page, you can change the URL to which the client will be redirected when the timer reaches 0. |
 | rate                | string                                                               | Installments number. Format: [bank_code]-[installments_no].                                                                    |
 | filterRate          | string                                                               | Installments number. Format: [bank_code1]-[i_no1]-...-[i_noN],[bank_code2]-[i_no1]-...-[i_no2]. Ex: `apb-3-4,btrl-5-6`         |
-| channel             | string                                                               | Filter the available payment channels. Any combinations of the values CC, OP, C2P, and MASTERPASS concatenated with a comma.   |
-| generateEpid        | string                                                               | If specified and have value 1, instead of redirecting the client will return a JSON containing the URL of the payment page.    |
-| valability          | Date                                                                 | Payment link available until the specified timestamp (Romania timezone).                                                       |
+| channel             | string                                                               | Filter the available payment channels. Any combination of `CC`, `OP`, `C2P`, `GPAY`, `APAY`, `TBI`, `paypo`, comma-separated.  |
+| generateEpId        | string                                                               | If specified and have value 1, instead of redirecting the client will return a JSON containing the URL of the payment page.    |
+| validateCc          | boolean                                                              | Allow card validation with an amount of 0.                                                                                     |
+| valability          | Date                                                                 | Payment link available until the specified timestamp.                                                                          |
 | c2pId               | string                                                               | Unique ID of the client used for C2P wallet, blank values disable the wallet.                                                  |
 | c2pCid              | string                                                               | Unique ID of the enrolled card used for C2P wallet.                                                                            |
 | lang                | 'ro' \| 'en' \| 'fr' \| 'de' \| 'it' \| 'es' \| 'hu'                 | Preselect the language of the payment page. If not sent, the language will be chosen based on the client\'s IP.                |
@@ -205,6 +213,33 @@ Type:
 
 </details>
 
+## paymentParams [⤴](#table-of-contents)
+
+Build the full field set posted to the gateway, without wrapping it into a URL.
+
+Use it when you need to POST the fields yourself. That is the only supported way to run a **subsequent recurring transaction**, since that call is made server to server, without the customer being present.
+
+```ts
+import epClient from './lib/epClient';
+
+const fields = epClient.paymentParams({
+  amount: 12.34,
+  currency: 'RON',
+  invoiceId: 'invoice id',
+  orderDescription: 'Recurent payment',
+  baseEpId: '15F124618DA2E299CBEFA787A09464352946F422' // implies recurrentType: 'Recurent'
+});
+
+await fetch('https://secure.euplatesc.ro/tdsprocess/tranzactd.php', {
+  method: 'POST',
+  body: new URLSearchParams(fields)
+});
+```
+
+It takes the same parameters as [paymentUrl](#paymenturl-) and returns a `Record<string, string>`.
+
+Recurring payments come in two parts. The initial (enrolling) transaction carries `frequency` and is sent as `recurent=Base`; the merchant redirects the customer to it like any other payment. Subsequent transactions carry `baseEpId` and are sent as `recurent=Recurent` (or `Recurent2CIT` for a 3-D Secure one). Depending on how your merchant account is configured, EuPlătesc may initiate the subsequent transactions on its own cron jobs, in which case you never have to send them.
+
 ## checkResponse [⤴](#table-of-contents)
 
 Check the backward response received by the EuPlătesc POST request.
@@ -232,6 +267,8 @@ const params = {
 console.log(epClient.checkResponse(params));
 ```
 
+Reply to the EuPlătesc server with the plain text `OK`, otherwise the request may be retried.
+
 <details>
   <summary>Parameter list</summary>
 
@@ -248,6 +285,26 @@ console.log(epClient.checkResponse(params));
 | timestamp  | string                                                               | The made transaction's timestamp.      |
 | nonce      | string                                                               | The made transaction's nonce.          |
 | fpHash     | string                                                               | The made transaction's hash.           |
+
+### Additional response fields
+
+These are only sent when you enable them for the MID, in the EuPlătesc panel. They take part in the hash, so pass **exactly** the ones you received - an extra or a missing one makes the check return `invalid`.
+
+| Field          | Type   | Description                                                          |
+| -------------- | ------ | -------------------------------------------------------------------- |
+| secStatus      | string | Additional security info.                                            |
+| rrn            | string | Code generated by the bank, shown on the customer's bank statement.  |
+| mcard          | string | Last 4 digits of the used card.                                      |
+| cardExp        | string | Expiration date of the used card. Format: `YYmm`.                    |
+| discountAmount | string | Applied discount.                                                    |
+| paymentChannel | string | `CARD`, `GPay`, `ApplePay`, `C2P`, `OP`, `SMS` or `TBI`.             |
+| cardType       | string | `Visa`, `Mastercard` or `Maestro`.                                   |
+| bin            | string | First 6 digits of the used card.                                     |
+| rate           | string | Installments number. Format: `X rate BANK`, ex: `6 rate BTRL`.       |
+| cardHolder     | string | Name on the used card.                                               |
+| email          | string | Email of the customer.                                               |
+| rtype          | string | Transaction type: `Normal`, `Base` or `Recurent`.                    |
+| cce            | string | Unique ID of the PAN.                                                |
 
 </details>
 
@@ -313,7 +370,53 @@ Example:
 Type:
 
 ```ts
-{ success: string } | { error: string, ecode: string }
+{ success: string | TransactionStatus[] } | { error: string; ecode?: string }
+```
+
+Merchant accounts set to the newer response format (`v=1.2`) get an already parsed array of `TransactionStatus` objects, carrying extra fields such as `captured_amount`, `approval` or `channel`. The others get the legacy JSON string above.
+
+</details>
+
+## printTransaction [⤴](#table-of-contents)
+
+Get the transaction receipt as a base64 encoded PDF.
+
+```ts
+import epClient from './lib/epClient';
+
+const epId = '15F124618DA2E299CBEFA787A09464352946F422';
+const result = await epClient.printTransaction(epId);
+
+if ('success' in result) {
+  await fs.writeFile('receipt.pdf', Buffer.from(result.file, 'base64'));
+}
+```
+
+<details>
+  <summary>Parameter list</summary>
+
+| Field | Type   | Description                  |
+| ----- | ------ | ---------------------------- |
+| epId  | string | The EPID of the transaction. |
+
+</details>
+
+<details>
+  <summary>Return</summary>
+
+Example:
+
+```ts
+{
+  success: '1',
+  file: 'JVBERi0xLjQK...' // base64 encoded PDF
+}
+```
+
+Type:
+
+```ts
+{ success: string; file: string } | { error: string; ecode?: string }
 ```
 
 </details>
@@ -683,6 +786,7 @@ Example:
     epid: string;
     rrn: string;
     amount: string;
+    currency: string;
     commission: string;
     installments: string;
     type: 'capture' | 'refund' | 'chargeback';
@@ -699,6 +803,7 @@ type InvoiceTransaction = {
   epid: string;
   rrn: string;
   amount: string;
+  currency: string;
   commission: string;
   installments: string;
   type: 'capture' | 'refund' | 'chargeback';
@@ -768,6 +873,51 @@ type CapturedTotal = {
 
 </details>
 
+## getTransactionList [⤴](#table-of-contents)
+
+Get the transaction list.
+
+```ts
+import epClient from './lib/epClient';
+
+const params = {
+  from: new Date('2021-01-01'),
+  to: new Date('2021-06-01'),
+  status: 'success',
+  limit: 100
+};
+
+console.log(await epClient.getTransactionList(params));
+```
+
+<details>
+  <summary>Parameter list</summary>
+
+| Field  | Type                                                                                                  | Description                                                                                       |
+| ------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| mid    | string                                                                                                | Optional. Merchant ID. If empty, it will set up the merchant ID from client initialization.       |
+| from   | Date                                                                                                  | Optional. The date from which the filter starts to search transactions.                           |
+| to     | Date                                                                                                  | Optional. The date to which the filter ends to search transactions.                               |
+| by     | 'complete' \| 'auth' \| 'capture' \| 'refund' \| 'recurent_cancel'                                    | Optional. The date field the interval applies to. Default: `complete`.                            |
+| status | 'all' \| 'success' \| 'fail' \| 'captured' \| 'notcaptured' \| 'refunded' \| 'base' \| 'recurent'      | Optional. Transaction status filter. Default: `all`.                                              |
+| limit  | number                                                                                                | Optional. Number of returned records, 1-5000. Default: 5000.                                      |
+| page   | number                                                                                                | Optional. Result page, 1-based. Default: 1.                                                       |
+
+The searched interval cannot be longer than one year.
+
+</details>
+
+<details>
+  <summary>Return</summary>
+
+Type:
+
+```ts
+{ success: string | TransactionStatus[] } | { error: string; ecode?: string }
+```
+
+</details>
+
 ## getCardArt [⤴](#table-of-contents)
 
 Get card art data.
@@ -797,14 +947,12 @@ console.log(await epClient.getCardArt(epId));
 Example:
 
 ```ts
-// { success: CardArt } | { error: string; ecode: string }
+// CardArt | { error: string; ecode?: string }
 {
-  success: {
-    bin: "4xxxxx",
-    last4: "xxxx",
-    exp: "yymm",
-    cardart: "*BASE64 ENCODED IMAGE*"
-  }
+  bin: "4xxxxx",
+  last4: "xxxx",
+  exp: "yymm",
+  cardart: "*BASE64 ENCODED IMAGE*"
 }
 ```
 
@@ -1000,23 +1148,35 @@ type Merchant = {
 
 | Card number      | Expire date | CVC | Name | Result                |
 | ---------------- | ----------- | --- | ---- | --------------------- |
-| 4111111111111111 | 24/01       | 123 | Test | Authentication failed |
-| 4444333322221111 | 24/01       | 123 | Test | Not sufficient funds  |
-| 4000020000000000 | 24/01       | 123 | Test | Transaction declined  |
-| 4400000000000008 | 24/01       | 123 | Test | Expired card          |
-| 4607000000000009 | 24/01       | 123 | Test | Invalid response      |
-| 4000640000000005 | 24/01       | 123 | Test | Approved              |
-| 5454545454545454 | 24/01       | 123 | Test | Authentication failed |
-| 5555555555554444 | 24/01       | 123 | Test | Not sufficient funds  |
-| 2222400010000008 | 24/01       | 123 | Test | Transaction declined  |
-| 2222400030000004 | 24/01       | 123 | Test | Expired card          |
-| 5100060000000002 | 24/01       | 123 | Test | Invalid response      |
-| 5500000000000004 | 24/01       | 123 | Test | Approved              |
+| 4111111111111111 | 28/01       | 123 | Test | Approved              |
+| 4444333322221111 | 28/01       | 123 | Test | Not sufficient funds  |
+| 4000020000000000 | 28/01       | 123 | Test | Transaction declined  |
+| 4400000000000008 | 28/01       | 123 | Test | Expired card          |
+| 4607000000000009 | 28/01       | 123 | Test | Invalid response      |
+| 4000640000000005 | 28/01       | 123 | Test | Approved              |
+| 5454545454545454 | 28/01       | 123 | Test | Authentication failed |
+| 5555555555554444 | 28/01       | 123 | Test | Approved              |
+| 2222400010000008 | 28/01       | 123 | Test | Transaction declined  |
+| 2222400030000004 | 28/01       | 123 | Test | Expired card          |
+| 5100060000000002 | 28/01       | 123 | Test | Invalid response      |
+| 5500000000000004 | 28/01       | 123 | Test | Approved              |
+| 4989882771777727 | 28/01       | 123 | Test | Approved              |
+| 5500000000000012 | 28/01       | 123 | Test | Issuer unavailable    |
+| 5500000000000020 | 28/01       | 123 | Test | System malfunction    |
+| 5186001700008785 | 28/01       | 123 | Test | Approved              |
+| 5186001700009726 | 28/01       | 123 | Test | Approved              |
+| 5120350100064537 | 28/01       | 123 | Test | Approved              |
+| 5120350100064545 | 28/01       | 123 | Test | Approved              |
+| 2223001870064586 | 28/01       | 123 | Test | Approved              |
+| 5204731620064595 | 28/01       | 123 | Test | Approved              |
+| 4622943123103732 | 28/01       | 123 | Test | Approved              |
+| 4622943123103740 | 28/01       | 123 | Test | Approved              |
+
+These work only while the account is in test state. Test accounts also accept real cards in the test environment, so that you can exercise the processing terminal; for PSP customers the amount is capped at 1. Contact the EuPlătesc team if you need live card acceptance disabled in the test environment.
 
 # Built with [⤴](#table-of-contents)
 
-- [axios](https://www.npmjs.com/package/axios)
-- [Form-Data](https://www.npmjs.com/package/form-data)
+Nothing - the package has no runtime dependencies. It uses the `fetch` and `FormData` globals built into Node, so it needs **Node 18 or newer**.
 
 # License [⤴](#table-of-contents)
 
