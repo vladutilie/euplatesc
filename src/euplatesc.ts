@@ -114,7 +114,7 @@ export class EuPlatesc {
       d: dt.getUTCDate().toString().padStart(2, '0')
     };
 
-    let hmacData: BaseHmac & BaseOrder = {
+    const hmacData: BaseHmac & BaseOrder = {
       amount: this.testMode ? '1.00' : data.amount.toString(),
       curr: data.currency,
       invoice_id: data.invoiceId.trim(),

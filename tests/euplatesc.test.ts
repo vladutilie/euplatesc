@@ -8,7 +8,7 @@ import { Config, Hmac, BaseHmac, Order } from '../src/types';
 
 describe('euplatesc unit tests', (): void => {
   let euplatescClient: EuPlatesc;
-  let euplatescConfig: Config = {
+  const euplatescConfig: Config = {
     merchantId: 'my-other-merchant-id',
     secretKey: 'some-other-secret-key',
     testMode: false,
@@ -290,7 +290,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('computeHmac()', (): void => {
     test('Check computation', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -313,7 +313,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('getStatus()', (): void => {
     test('throw exception for no passed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -326,7 +326,7 @@ describe('euplatesc unit tests', (): void => {
     });
 
     test('Check request data', async (): Promise<void> => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -367,7 +367,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('capture()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -382,7 +382,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('reversal()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -397,7 +397,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('partialCapture()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -412,7 +412,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('refund()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -427,7 +427,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('cancelRecurring()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -442,7 +442,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('updateInvoiceId()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -457,7 +457,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('getInvoiceList()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -472,7 +472,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('getInvoiceTransactions()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -487,7 +487,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('getCapturedTotal()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
@@ -502,7 +502,7 @@ describe('euplatesc unit tests', (): void => {
 
   describe('getCardArtData()', (): void => {
     test('throw exception for no needed params', (): void => {
-      let euplatescConfig: Config = {
+      const euplatescConfig: Config = {
         merchantId: 'my-merchant-id',
         secretKey: 'some-private-key',
         testMode: true
