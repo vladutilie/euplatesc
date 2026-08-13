@@ -1,10 +1,13 @@
 import { describe, expect } from '@jest/globals';
+
 import axios from 'axios';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+// The client builds its own axios instance; point it back at the mock.
+mockedAxios.create.mockReturnValue(mockedAxios);
 
 import { EuPlatesc } from '../src/euplatesc';
-import { Config, Hmac, BaseHmac, Order } from '../src/types';
+import { Config, Hmac, BaseHmac, Order, Response } from '../src/types';
 
 describe('euplatesc unit tests', (): void => {
   let euplatescClient: EuPlatesc;
@@ -88,10 +91,70 @@ describe('euplatesc unit tests', (): void => {
       const { search } = new URL(paymentUrl);
       const params: URLSearchParams = new URLSearchParams(search);
 
-      expect(params.get('amount')).toBe(data.amount.toString());
+      expect(params.get('amount')).toBe(data.amount.toFixed(2));
       expect(params.get('curr')).toBe(data.currency);
       expect(params.get('invoice_id')).toBe(data.invoiceId);
       expect(params.get('order_desc')).toBe(data.orderDescription);
+    });
+
+    test('The amount is always sent with two decimals', (): void => {
+      const { paymentUrl } = euplatescClient.paymentUrl({ ...data, amount: 12 });
+      const params = new URLSearchParams(new URL(paymentUrl).search);
+
+      expect(params.get('amount')).toBe('12.00');
+    });
+
+    test('Reject a non-numeric or negative amount', (): void => {
+      expect(() => euplatescClient.paymentUrl({ ...data, amount: '12' as unknown as number })).toThrow(Error);
+      expect(() => euplatescClient.paymentUrl({ ...data, amount: -1 })).toThrow(Error);
+    });
+
+    test('Default the recurring expiry one year ahead', (): void => {
+      data.frequency = { days: 30 };
+      const { paymentUrl } = euplatescClient.paymentUrl(data);
+      const params = new URLSearchParams(new URL(paymentUrl).search);
+
+      const inAYear = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+      const expected = [
+        inAYear.getUTCFullYear().toString(),
+        (inAYear.getUTCMonth() + 1).toString().padStart(2, '0'),
+        inAYear.getUTCDate().toString().padStart(2, '0')
+      ].join('');
+
+      expect(params.get('recurent_exp')).toBe(expected);
+      expect(params.get('recurent_exp')).toHaveLength(8);
+    });
+
+    test('Send baseEPID and recurent=Recurent for a subsequent transaction', (): void => {
+      const baseEpId = '15F124618DA2E299CBEFA787A09464352946F422';
+      const fields = euplatescClient.paymentParams({ ...data, baseEpId });
+
+      expect(fields.baseEPID).toBe(baseEpId);
+      expect(fields.recurent).toBe('Recurent');
+      // baseEPID must be hashed before amount.
+      expect(Object.keys(fields).indexOf('baseEPID')).toBe(0);
+    });
+
+    test('Honour an explicit recurrentType', (): void => {
+      const fields = euplatescClient.paymentParams({
+        ...data,
+        baseEpId: '15F124618DA2E299CBEFA787A09464352946F422',
+        recurrentType: 'Recurent2CIT'
+      });
+
+      expect(fields.recurent).toBe('Recurent2CIT');
+    });
+
+    test('Check the new extra params in the final URL', (): void => {
+      const { paymentUrl } = euplatescClient.paymentUrl({
+        ...data,
+        silentUrlSec: 'https://sec-url.domain.ro',
+        validateCc: true
+      });
+      const params = new URLSearchParams(new URL(paymentUrl).search);
+
+      expect(params.get('ExtraData[silenturlsec]')).toBe('https://sec-url.domain.ro');
+      expect(params.get('validate_cc')).toBe('1');
     });
 
     test('Check frequency params in the final URL', (): void => {
@@ -274,7 +337,7 @@ describe('euplatesc unit tests', (): void => {
       expect(params.get('generate_epid')).toBe(data.generateEpId);
 
       const valabilityAssert = [
-        valability.getFullYear(),
+        valability.getUTCFullYear(),
         (valability.getUTCMonth() + 1).toString().padStart(2, '0'),
         valability.getUTCDate().toString().padStart(2, '0'),
         valability.getUTCHours().toString().padStart(2, '0'),
@@ -309,6 +372,141 @@ describe('euplatesc unit tests', (): void => {
       const hmacAssert = '7C92021205130AB01AAA014E4B47222A'; // Computed in EuPlatesc Panel.
       expect(euplatescClient.computeHmac(hmacData)).toBe(hmacAssert);
     });
+
+    test('Empty and unset fields are both hashed as "-"', (): void => {
+      euplatescClient = new EuPlatesc({ merchantId: 'mid', secretKey: 'AABB', testMode: true });
+
+      const withEmpty = euplatescClient.computeHmac({ timestamp: '20190101000000', nonce: 'abc', a: '' });
+      const withUndefined = euplatescClient.computeHmac({
+        timestamp: '20190101000000',
+        nonce: 'abc',
+        a: undefined
+      });
+
+      expect(withEmpty).toBe(withUndefined);
+    });
+  });
+
+  describe('checkResponse()', (): void => {
+    const baseResponse = {
+      amount: '12.34',
+      currency: 'RON',
+      invoiceId: '00012',
+      epId: '15F124618DA2E299CBEFA787A09464352946F422',
+      merchantId: 'testaccount',
+      action: '0',
+      message: 'Approved',
+      approval: '123456',
+      timestamp: '20190101000000',
+      nonce: 'f7d93357a7040619bc416881c479687f'
+    };
+
+    beforeEach(() => {
+      euplatescClient = new EuPlatesc({
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      });
+    });
+
+    const sign = (fields: Record<string, string>): string =>
+      euplatescClient.computeHmac(fields as never);
+
+    test('A correctly signed approved response is complete', (): void => {
+      const fpHash = sign({
+        amount: baseResponse.amount,
+        curr: baseResponse.currency,
+        invoice_id: baseResponse.invoiceId,
+        ep_id: baseResponse.epId,
+        merch_id: baseResponse.merchantId,
+        action: baseResponse.action,
+        message: baseResponse.message,
+        approval: baseResponse.approval,
+        timestamp: baseResponse.timestamp,
+        nonce: baseResponse.nonce
+      });
+
+      expect(euplatescClient.checkResponse({ ...baseResponse, fpHash })).toEqual({
+        success: true,
+        response: 'complete'
+      });
+    });
+
+    test('A correctly signed declined response is failed', (): void => {
+      const response: Response = { ...baseResponse, action: '1', message: 'Declined', fpHash: '' };
+      response.fpHash = sign({
+        amount: response.amount,
+        curr: response.currency as string,
+        invoice_id: response.invoiceId,
+        ep_id: response.epId,
+        merch_id: response.merchantId,
+        action: response.action,
+        message: response.message,
+        approval: response.approval,
+        timestamp: response.timestamp,
+        nonce: response.nonce
+      });
+
+      expect(euplatescClient.checkResponse(response)).toEqual({ success: false, response: 'failed' });
+    });
+
+    test('A tampered response is invalid', (): void => {
+      expect(euplatescClient.checkResponse({ ...baseResponse, fpHash: 'DEADBEEF' })).toEqual({
+        success: false,
+        response: 'invalid'
+      });
+    });
+
+    test('The additional fields are hashed after nonce, in the documented order', (): void => {
+      const fpHash = sign({
+        amount: baseResponse.amount,
+        curr: baseResponse.currency,
+        invoice_id: baseResponse.invoiceId,
+        ep_id: baseResponse.epId,
+        merch_id: baseResponse.merchantId,
+        action: baseResponse.action,
+        message: baseResponse.message,
+        approval: baseResponse.approval,
+        timestamp: baseResponse.timestamp,
+        nonce: baseResponse.nonce,
+        sec_status: '9',
+        rrn: '415584961828',
+        card_type: 'Visa',
+        rtype: 'Normal'
+      });
+
+      expect(
+        euplatescClient.checkResponse({
+          ...baseResponse,
+          secStatus: '9',
+          rrn: '415584961828',
+          cardType: 'Visa',
+          rtype: 'Normal',
+          fpHash
+        })
+      ).toEqual({ success: true, response: 'complete' });
+    });
+
+    test('Omitting an enabled additional field makes the response invalid', (): void => {
+      const fpHash = sign({
+        amount: baseResponse.amount,
+        curr: baseResponse.currency,
+        invoice_id: baseResponse.invoiceId,
+        ep_id: baseResponse.epId,
+        merch_id: baseResponse.merchantId,
+        action: baseResponse.action,
+        message: baseResponse.message,
+        approval: baseResponse.approval,
+        timestamp: baseResponse.timestamp,
+        nonce: baseResponse.nonce,
+        sec_status: '9'
+      });
+
+      expect(euplatescClient.checkResponse({ ...baseResponse, fpHash })).toEqual({
+        success: false,
+        response: 'invalid'
+      });
+    });
   });
 
   describe('getStatus()', (): void => {
@@ -333,35 +531,12 @@ describe('euplatesc unit tests', (): void => {
       };
       euplatescClient = new EuPlatesc(euplatescConfig);
 
-      mockedAxios.post.mockResolvedValueOnce({
-        success: `[
-          {
-            merch_id: ${euplatescConfig.merchantId},
-            invoice_id: '00000',
-            amount: "49.44"
-            ep_id: '123',
-            rrn: '225884056595',
-            action: '0',
-            sec_status: '9',
-            message: 'Approved',
-            captured: '0',
-            refunded: '0',
-            pending_status: '0',
-            masked_card: '444444xxxxxx4444',
-            card_expire: 'mm-yy',
-            name_on_card: 'Test',
-            email: 'test@test.com',
-            timestamp: '2014-11-26 10:11:48',
-            tran_type: 'Normal',
-            recurent_exp: '',
-            recurent_cancel_date: ''
-          }
-        ]`
-      });
+      mockedAxios.post.mockResolvedValueOnce({ data: { success: [{ ep_id: '123', action: '0' }] } });
 
-      await euplatescClient.getStatus({ epId: '123' });
+      const result = await euplatescClient.getStatus({ epId: '123' });
 
       expect(mockedAxios.post).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ success: [{ ep_id: '123', action: '0' }] });
     });
   });
 
@@ -512,6 +687,65 @@ describe('euplatesc unit tests', (): void => {
       expect(async () => {
         await euplatescClient.getCardArt('1');
       }).rejects.toThrow(Error);
+    });
+  });
+
+  describe('getTransactionList()', (): void => {
+    beforeEach(() => {
+      mockedAxios.post.mockClear();
+      mockedAxios.post.mockResolvedValue({ data: { success: [] } });
+      euplatescClient = new EuPlatesc(euplatescConfig);
+    });
+
+    const sentBody = (): string => (mockedAxios.post.mock.calls[0][1] as { getBuffer(): Buffer }).getBuffer().toString();
+
+    test('Send the documented defaults', async (): Promise<void> => {
+      await euplatescClient.getTransactionList();
+
+      expect(mockedAxios.post).toHaveBeenCalledTimes(1);
+      const body = sentBody();
+
+      expect(body).toContain('transactions');
+      expect(body).toContain('name="status"');
+      expect(body).toContain('all');
+      expect(body).toContain(euplatescConfig.merchantId as string);
+    });
+
+    test('Reject an out of range limit or page', (): void => {
+      expect(() => euplatescClient.getTransactionList({ limit: 0 })).toThrow(Error);
+      expect(() => euplatescClient.getTransactionList({ limit: 5001 })).toThrow(Error);
+      expect(() => euplatescClient.getTransactionList({ page: 0 })).toThrow(Error);
+    });
+
+    test('Format the interval as YYYY-mm-dd HH:mm:ss', async (): Promise<void> => {
+      await euplatescClient.getTransactionList({
+        from: new Date('2021-01-01T08:30:00Z'),
+        to: new Date('2021-06-01T21:45:10Z'),
+        by: 'capture',
+        status: 'success',
+        limit: 100,
+        page: 2
+      });
+
+      const body = sentBody();
+
+      expect(body).toContain('2021-01-01 08:30:00');
+      expect(body).toContain('2021-06-01 21:45:10');
+      expect(body).toContain('capture');
+      expect(body).toContain('success');
+    });
+  });
+
+  describe('printTransaction()', (): void => {
+    test('Request the receipt with the merchant credentials', async (): Promise<void> => {
+      mockedAxios.post.mockClear();
+      mockedAxios.post.mockResolvedValue({ data: { success: '1', file: 'JVBERi0=' } });
+      euplatescClient = new EuPlatesc(euplatescConfig);
+
+      const result = await euplatescClient.printTransaction('15F124618DA2E299CBEFA787A09464352946F422');
+
+      expect(mockedAxios.post).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ success: '1', file: 'JVBERi0=' });
     });
   });
 });
