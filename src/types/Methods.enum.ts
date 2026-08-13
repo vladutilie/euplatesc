@@ -1,5 +1,6 @@
 export enum Methods {
   CHECK_STATUS = 'check_status',
+  PRINT = 'print',
   CAPTURE = 'capture',
   REVERSAL = 'reversal',
   PARTIAL_CAPTURE = 'partial_capture',
@@ -9,6 +10,7 @@ export enum Methods {
   INVOICES = 'invoices',
   INVOICE = 'invoice',
   CAPTURED_TOTAL = 'captured_total',
+  TRANSACTIONS = 'transactions',
   CARDART = 'cardart',
   C2P_CARDS = 'c2p_cards',
   C2P_DELETE = 'c2p_delete',

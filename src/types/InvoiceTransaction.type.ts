@@ -4,6 +4,7 @@ export type InvoiceTransaction = {
   epid: string;
   rrn: string;
   amount: string;
+  currency: string;
   commission: string;
   installments: string;
   type: 'capture' | 'refund' | 'chargeback';
