@@ -1,6 +1,4 @@
 import * as crypto from 'crypto';
-import axios, { AxiosInstance } from 'axios';
-import FormData from 'form-data';
 
 import {
   Base,
@@ -39,7 +37,7 @@ export class EuPlatesc {
   private _userKey: string;
   private _userApi: string;
 
-  private _http: AxiosInstance;
+  private _timeout: number;
 
   protected baseUrl = 'https://manager.euplatesc.ro/v3/index.php?action=ws';
   protected gatewayUrl = 'https://secure.euplatesc.ro/tdsprocess/tranzactd.php';
@@ -65,8 +63,7 @@ export class EuPlatesc {
     this._testMode = 'boolean' === typeof testMode ? testMode : false;
     this._userKey = userKey || '';
     this._userApi = userApi || '';
-
-    this._http = axios.create({ timeout: timeout ?? 30_000 });
+    this._timeout = timeout ?? 30_000;
   }
 
   get merchantId(): string {
@@ -693,9 +690,23 @@ export class EuPlatesc {
       formData.append(key, null === value || undefined === value ? '' : String(value));
     }
 
-    const response = await this._http.post<U>(this.baseUrl, formData, { headers: formData.getHeaders() });
+    const response = await fetch(this.baseUrl, {
+      method: 'POST',
+      body: formData,
+      signal: AbortSignal.timeout(this._timeout)
+    });
 
-    return response.data;
+    // The gateway replies with JSON, but not always with a JSON content type.
+    const body = await response.text();
+    if (!response.ok) {
+      throw new Error(`EuPlătesc responded with ${response.status} ${response.statusText}: ${body.slice(0, 200)}`);
+    }
+
+    try {
+      return JSON.parse(body) as U;
+    } catch {
+      throw new Error(`EuPlătesc returned a malformed response: ${body.slice(0, 200)}`);
+    }
   };
 
   /**

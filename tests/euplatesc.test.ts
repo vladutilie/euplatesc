@@ -1,10 +1,24 @@
 import { describe, expect } from '@jest/globals';
 
-import axios from 'axios';
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-// The client builds its own axios instance; point it back at the mock.
-mockedAxios.create.mockReturnValue(mockedAxios);
+const mockedFetch = jest.fn();
+global.fetch = mockedFetch as unknown as typeof fetch;
+
+/** Stub a gateway reply, the way the client reads it: status + raw text. */
+const mockReply = (payload: unknown, ok: boolean = true): void => {
+  mockedFetch.mockResolvedValue({
+    ok,
+    status: ok ? 200 : 500,
+    statusText: ok ? 'OK' : 'Internal Server Error',
+    text: async () => JSON.stringify(payload)
+  });
+};
+
+/** Read back the multipart body of the nth recorded request as a flat object. */
+const sentFields = async (call: number = 0): Promise<Record<string, string>> => {
+  const body = mockedFetch.mock.calls[call][1].body as FormData;
+
+  return Object.fromEntries([...body.entries()].map(([key, value]) => [key, String(value)]));
+};
 
 import { EuPlatesc } from '../src/euplatesc';
 import { Config, Hmac, BaseHmac, Order, Response } from '../src/types';
@@ -531,12 +545,42 @@ describe('euplatesc unit tests', (): void => {
       };
       euplatescClient = new EuPlatesc(euplatescConfig);
 
-      mockedAxios.post.mockResolvedValueOnce({ data: { success: [{ ep_id: '123', action: '0' }] } });
+      mockedFetch.mockClear();
+      mockReply({ success: [{ merch_id: euplatescConfig.merchantId, ep_id: '123', action: '0' }] });
 
       const result = await euplatescClient.getStatus({ epId: '123' });
 
-      expect(mockedAxios.post).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ success: [{ ep_id: '123', action: '0' }] });
+      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ success: [{ merch_id: euplatescConfig.merchantId, ep_id: '123', action: '0' }] });
+
+      const fields = await sentFields();
+      expect(fields.method).toBe('check_status');
+      expect(fields.epid).toBe('123');
+      expect(fields.fp_hash).toHaveLength(32);
+    });
+
+    test('Surface a non-2xx gateway reply as an error', async (): Promise<void> => {
+      euplatescClient = new EuPlatesc({
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      });
+      mockedFetch.mockClear();
+      mockReply({ error: 'boom' }, false);
+
+      await expect(euplatescClient.getStatus({ epId: '123' })).rejects.toThrow(/500/);
+    });
+
+    test('Surface a malformed gateway reply as an error', async (): Promise<void> => {
+      euplatescClient = new EuPlatesc({
+        merchantId: 'my-merchant-id',
+        secretKey: 'some-private-key',
+        testMode: true
+      });
+      mockedFetch.mockClear();
+      mockedFetch.mockResolvedValue({ ok: true, status: 200, statusText: 'OK', text: async () => '<html>oops' });
+
+      await expect(euplatescClient.getStatus({ epId: '123' })).rejects.toThrow(/malformed/);
     });
   });
 
@@ -692,23 +736,22 @@ describe('euplatesc unit tests', (): void => {
 
   describe('getTransactionList()', (): void => {
     beforeEach(() => {
-      mockedAxios.post.mockClear();
-      mockedAxios.post.mockResolvedValue({ data: { success: [] } });
+      mockedFetch.mockClear();
+      mockReply({ success: [] });
       euplatescClient = new EuPlatesc(euplatescConfig);
     });
-
-    const sentBody = (): string => (mockedAxios.post.mock.calls[0][1] as { getBuffer(): Buffer }).getBuffer().toString();
 
     test('Send the documented defaults', async (): Promise<void> => {
       await euplatescClient.getTransactionList();
 
-      expect(mockedAxios.post).toHaveBeenCalledTimes(1);
-      const body = sentBody();
+      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      const fields = await sentFields();
 
-      expect(body).toContain('transactions');
-      expect(body).toContain('name="status"');
-      expect(body).toContain('all');
-      expect(body).toContain(euplatescConfig.merchantId as string);
+      expect(fields.method).toBe('transactions');
+      expect(fields.status).toBe('all');
+      expect(fields.mid).toBe(euplatescConfig.merchantId);
+      expect(fields.from).toBe('');
+      expect(fields.to).toBe('');
     });
 
     test('Reject an out of range limit or page', (): void => {
@@ -727,25 +770,28 @@ describe('euplatesc unit tests', (): void => {
         page: 2
       });
 
-      const body = sentBody();
+      const fields = await sentFields();
 
-      expect(body).toContain('2021-01-01 08:30:00');
-      expect(body).toContain('2021-06-01 21:45:10');
-      expect(body).toContain('capture');
-      expect(body).toContain('success');
+      expect(fields.from).toBe('2021-01-01 08:30:00');
+      expect(fields.to).toBe('2021-06-01 21:45:10');
+      expect(fields.by).toBe('capture');
+      expect(fields.status).toBe('success');
+      expect(fields.limit).toBe('100');
+      expect(fields.page).toBe('2');
     });
   });
 
   describe('printTransaction()', (): void => {
     test('Request the receipt with the merchant credentials', async (): Promise<void> => {
-      mockedAxios.post.mockClear();
-      mockedAxios.post.mockResolvedValue({ data: { success: '1', file: 'JVBERi0=' } });
+      mockedFetch.mockClear();
+      mockReply({ success: '1', file: 'JVBERi0=' });
       euplatescClient = new EuPlatesc(euplatescConfig);
 
       const result = await euplatescClient.printTransaction('15F124618DA2E299CBEFA787A09464352946F422');
 
-      expect(mockedAxios.post).toHaveBeenCalledTimes(1);
+      expect(mockedFetch).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ success: '1', file: 'JVBERi0=' });
+      expect((await sentFields()).method).toBe('print');
     });
   });
 });
